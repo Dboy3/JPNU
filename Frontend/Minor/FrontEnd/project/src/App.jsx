@@ -67,7 +67,7 @@ function App() {
           </Route>
         ) : user.role === "SPC" ? (
           // Routes accessible to SPC role
-          <Route path="/spc" element={<SPCLayout />} />
+          <Route path="/" element={<SPCLayout />} />
         ) : (
           // Redirect to login if the role is not recognized
           <Route path="*" element={<Navigate to="/login" replace />} />

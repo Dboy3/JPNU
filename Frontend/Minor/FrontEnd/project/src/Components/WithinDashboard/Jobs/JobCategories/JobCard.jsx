@@ -12,38 +12,39 @@ function JobCard({ job }) {
       <div className="">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-primary-dark">
-            {job.role}
+            {job.roles.join(" / ")}
           </h3>
           <p className="text-gray-700">{job.companyName}</p>
 
           {/* Conditionally render internship or full-time details */}
-          {job.internship && job.internship.name && (
+          {job.employmentType.internship && (
             <div className="mt-2">
-              <p className="text-gray-700">
-                Internship: {job.internship.name} | Duration:{" "}
-                {job.internship.duration} | Stipend: ₹{job.internship.stipend}
-              </p>
+              <p className="text-gray-700">Internship: Not Available</p>
             </div>
           )}
 
-          {job.fulltime && job.fulltime.name && (
+          {job.employmentType.fullTime && (
             <div className="mt-2">
               <p className="text-gray-700">
-                Full-time: {job.fulltime.name} | CTC: ₹{job.fulltime.ctc}
+                Full-time: Available | CTC: ₹{job.ctc}
               </p>
             </div>
           )}
 
           <p className="text-primary-dark mt-1">
-            Number of Positions: {job.NumberOfPositions}
+            Locations: {job.location.join(", ")}
           </p>
           <p className="text-primary-dark mt-1">
-            {/* Eligible Branches: {job.eligibleBranch.join(", ")} */}
+            Eligible Courses: {job.eligibleCourses.join(", ")}
           </p>
-          <p className="text-gray-500 mt-1">Start Date: {job.StartDate}</p>
-          <p className="text-gray-500 mt-1">End Date: {job.EndDate}</p>
+          <p className="text-primary-dark mt-1">
+            Required CGPA: {job.requiredCgpa}
+          </p>
+          <p className="text-gray-500 mt-1">
+            Registration Period: {job.registrationStartDate} to {job.registrationEndDate}
+          </p>
 
-          <p className="text-gray-500 mt-2">{job.OtherDetails}</p>
+          <p className="text-gray-500 mt-2">{job.otherDetails}</p>
         </div>
       </div>
     </NavLink>

@@ -4,26 +4,22 @@ import { useState } from "react";
 
 const JD = () => {
   const job = {
-    title: "Frontend Developer",
-    companyName: "Tech Solutions Ltd.",
-    role: "Frontend",
-    internship: {
-      name: "internship",
-      duration: "6 months",
-      stipend: 20000,
+    id: 1,
+    companyName: "TechCorp Ltd.",
+    roles: ["Software Engineer", "Frontend Developer"],
+    employmentType: {
+      fullTime: true,
+      internship: false,
     },
-    fulltime: {
-      name: "fulltime",
-      ctc: 300000,
-    },
-    locations: ["Ahmedabad", "Banglore"],
-    NumberOfPositions: 1,
-    requiredSkills: ["React", "JavaScript", "CSS"],
-    eligibleBranch: ["Mechanical", "Civil"],
-    BacklogsAllowed: "Yes",
-    StartDate: "2024-03-01",
-    EndDate: "2024-03-31",
-    OtherDetails: "2 rounds of interviews and a coding assessment",
+    ctc: 8000000,
+    stipend: null,
+    eligibleCourses: ["B.Tech in Computer Science", "B.Tech in IT"],
+    requiredCgpa: 7.5,
+    location: ["New York, USA", "Remote"],
+    otherDetails: "We are looking for passionate software engineers to join our team.",
+    registrationStartDate: "2024-11-01",
+    registrationEndDate: "2024-12-01",
+    urlLink: "https://www.techcorp.com/careers",
   };
 
   const { id } = useParams();
@@ -57,84 +53,58 @@ const JD = () => {
       {/* Header */}
       <div className="flex justify-between items-center border-b pb-4 border-gray-200">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">{job.title}</h1>
+          <h1 className="text-xl font-bold text-gray-800">{job.roles.join(", ")}</h1>
           <p className="text-sm text-gray-600">{job.companyName}</p>
         </div>
         <div className="flex space-x-2 items-center">
-          <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
-            On Campus
-          </span>
-          <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
-            Eligible
-          </span>
+          {job.employmentType.fullTime && (
+            <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
+              Full-Time
+            </span>
+          )}
+          {job.employmentType.internship && (
+            <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
+              Internship
+            </span>
+          )}
         </div>
       </div>
 
       {/* Job Details */}
       <div className="grid grid-cols-3 gap-4 py-4">
         <div>
-          <h2 className="font-bold text-gray-800">Role</h2>
-          <p className="text-gray-600">{job.role}</p>
+          <h2 className="font-bold text-gray-800">Location</h2>
+          <p className="text-gray-600">{job.location.join(", ")}</p>
         </div>
         <div>
-          <h2 className="font-bold text-gray-800">Locations</h2>
-          <p className="text-gray-600">{job.locations.join(", ")}</p>
+          <h2 className="font-bold text-gray-800">Required CGPA</h2>
+          <p className="text-gray-600">{job.requiredCgpa}</p>
         </div>
         <div>
-          <h2 className="font-bold text-gray-800">Number of Positions</h2>
-          <p className="text-gray-600">{job.NumberOfPositions}</p>
+          <h2 className="font-bold text-gray-800">Registration Period</h2>
+          <p className="text-gray-600">{job.registrationStartDate} to {job.registrationEndDate}</p>
         </div>
       </div>
-
-      {/* Internship Details */}
-      {job.internship && (
-        <div className="my-4">
-          <h2 className="font-bold text-gray-800">Internship Details</h2>
-          <p className="text-gray-600">Duration: {job.internship.duration}</p>
-          <p className="text-gray-600">Stipend: INR {job.internship.stipend}</p>
-        </div>
-      )}
 
       {/* Full-Time Details */}
-      {job.fulltime && (
+      {job.employmentType.fullTime && (
         <div className="my-4">
           <h2 className="font-bold text-gray-800">Full-Time Details</h2>
-          <p className="text-gray-600">CTC: INR {job.fulltime.ctc}</p>
+          <p className="text-gray-600">CTC: INR {job.ctc}</p>
         </div>
       )}
 
-      {/* Eligible Branches */}
+      {/* Eligible Courses */}
       <div className="my-4">
-        <h2 className="font-bold text-gray-800">Eligible Branches</h2>
-        <p className="text-gray-600">{job.eligibleBranch.join(", ")}</p>
-      </div>
-
-      {/* Required Skills */}
-      {job.requiredSkills && job.requiredSkills.length > 0 && (
-        <div className="my-4">
-          <h2 className="font-bold text-gray-800">Required Skills</h2>
-          <p className="text-gray-600">{job.requiredSkills.join(", ")}</p>
-        </div>
-      )}
-
-      {/* Backlogs Allowed */}
-      <div className="my-4">
-        <h2 className="font-bold text-gray-800">Backlogs Allowed</h2>
-        <p className="text-gray-600">{job.BacklogsAllowed}</p>
-      </div>
-
-      {/* Start and End Date */}
-      <div className="my-4">
-        <h2 className="font-bold text-gray-800">Job Duration</h2>
-        <p className="text-gray-600">Start Date: {job.StartDate}</p>
-        <p className="text-gray-600">End Date: {job.EndDate}</p>
+        <h2 className="font-bold text-gray-800">Eligible Courses</h2>
+        <p className="text-gray-600">{job.eligibleCourses.join(", ")}</p>
       </div>
 
       {/* Other Details */}
-      {job.OtherDetails && (
+      {job.otherDetails && (
         <div className="my-4">
           <h2 className="font-bold text-gray-800">Other Details</h2>
-          <p className="text-gray-600">{job.OtherDetails}</p>
+          <p className="text-gray-600">{job.otherDetails}</p>
         </div>
       )}
 
@@ -156,7 +126,7 @@ const JD = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Apply for {job.title}
+              Apply for {job.roles.join(", ")}
             </h2>
             <div className="flex items-center mb-4">
               <input

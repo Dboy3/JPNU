@@ -3,27 +3,22 @@ import JobCard from "./JobCard";
 function Application() {
   const userAppliedJobs = [
     {
-      id: "4",
-      companyName: "Design Masters",
-      role: "UX/UI Designer",
-      internship: {
-        name: "internship",
-        duration: "5 months",
-        stipend: 18000,
+      id: 4,
+      companyName: "CloudSoft Solutions",
+      roles: ["Cloud Engineer", "DevOps Specialist"],
+      employmentType: {
+        fullTime: true,
+        internship: false,
       },
-      fulltime: {
-        name: "fulltime",
-        ctc: 400000,
-      },
-      location: ["Mumbai", "Bangalore"],
-      NumberOfPositions: 1,
-      requiredSkills: ["Adobe XD", "Figma", "Sketch", "User Research"],
-      eligibleBranch: ["Design", "Computer Science"],
-      BacklogsAllowed: "No",
-      StartDate: "2024-05-01",
-      EndDate: "2024-06-01",
-      OtherDetails:
-        "Strong portfolio and understanding of design principles required.",
+      ctc: 9000000,
+      stipend: null,
+      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in Cloud Computing"],
+      requiredCgpa: 7.5,
+      location: ["Toronto, Canada"],
+      otherDetails: "Join CloudSoft Solutions and build cutting-edge cloud infrastructure solutions.",
+      registrationStartDate: "2024-11-05",
+      registrationEndDate: "2024-12-05",
+      urlLink: "https://www.cloudsoft.com/careers",
     },
   ];
   // simply use useEffect and dispatch the getJobOppotunites 

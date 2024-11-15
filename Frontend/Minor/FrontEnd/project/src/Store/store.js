@@ -5,6 +5,7 @@ import authReducer from "../Pages/auth";
 import userReducer from "../Pages/user";
 import jobPostReducer from "../Components/AdminDashboard/JobPost/jobPostSlice";
 import expenseReducer from "../Components/SPC/expenseSlice";
+import notificationReducer from "../Components/AdminDashboard/AddNotification/notificationSlice"
 
 const store = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ const store = configureStore({
     user: userReducer,
     expenses: expenseReducer,
     jobposts: jobPostReducer,
-    expenses : expenseReducer
+    expenses : expenseReducer,
+    notifications : notificationReducer
   },
 });
 

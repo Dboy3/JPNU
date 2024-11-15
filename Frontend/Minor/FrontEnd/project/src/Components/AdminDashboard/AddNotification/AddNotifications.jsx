@@ -1,30 +1,5 @@
-import React, { useState } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
-import { useForm } from "react-hook-form";
-
 const AddNotifications = () => {
-  // const [notifications, setNotifications] = useState([]);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      time: "14/11/2024, 17:23:07",
-      content:
-        "Tech Corp is hiring a Software Developer to develop and maintain web applications. The application window opens on 12th August 2024 at 7:30 AM and closes on 14th August 2024 at 12:00 AM.",
-    },
-    {
-      id: 2,
-      time: "13/11/2024, 09:15:30",
-      content:
-        "Reminder: Application deadline approaching for Design Intern position at Creative Minds Inc. Closes on 15th November 2024.",
-    },
-    {
-      id: 3,
-      time: "10/11/2024, 14:50:15",
-      content:
-        "New opening: Data Analyst role at Analytics Solutions. Apply before 20th November 2024.",
-    },
-  ]);
-  
+  const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
   const [currentNotification, setCurrentNotification] = useState(null);
 
@@ -48,31 +23,21 @@ const AddNotifications = () => {
   };
 
   const handleDeleteNotification = (id) => {
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id)
-    );
+    dispatch(deleteNotification(id)); // Ensure it's correctly deleting from Redux
   };
 
   const onSubmit = (data) => {
     const newNotification = {
-      id: currentNotification ? currentNotification.id : Date.now(),
-      time: new Date().toLocaleString(),
       content: data.content,
     };
 
     if (currentNotification) {
-      setNotifications(
-        notifications.map((notification) =>
-          notification.id === currentNotification.id
-            ? newNotification
-            : notification
-        )
-      );
+      dispatch(editNotification({ id: currentNotification.id, content: data.content }));
     } else {
-      setNotifications([...notifications, newNotification]);
+      dispatch(addNotification(newNotification)); // Dispatch to add notification
     }
 
-    setShowForm(false);
+    setShowForm(false); // Hide the form after submit
   };
 
   return (
@@ -167,5 +132,3 @@ const AddNotifications = () => {
     </div>
   );
 };
-
-export default AddNotifications;

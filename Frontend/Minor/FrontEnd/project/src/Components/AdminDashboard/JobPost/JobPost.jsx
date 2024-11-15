@@ -3,29 +3,84 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
 const JobPost = () => {
+  // const [jobs, setJobs] = useState([]);
   const [jobs, setJobs] = useState([
     {
       id: 1,
-      jobDriveName: "Campus Recruitment Drive 2024",
-      companyName: "Google",
-      roles: ["Software Engineer", "Data Scientist"],
-      employmentType: "fulltime",
-      ctc: [{ role: "Software Engineer", amount: 3000000 }],
-      stipend: [{ role: "Intern", amount: 50000 }],
-      eligibleCourses: [{ role: "Software Engineer", course: "B.Tech" }],
-      requiredCgpa: [{ role: "Software Engineer", cgpa: 8 }],
-      requiredBacklogs: [{ role: "Software Engineer", backlogsAllowed: "No" }],
-      location: ["Bangalore"],
-      otherDetails: "Remote work is available",
-      registrationOpenDate: "2024-01-01",
-      registrationCloseDate: "2024-01-31",
-      postDate: "2023-12-15",
-      status: "active",
-      numberOfPositions: 10,
-      requiredSkills: ["JavaScript", "ReactJS", "Node.js"],
+      companyName: "TechCorp Ltd.",
+      roles: ["Software Engineer", "Frontend Developer"],
+      employmentType: {
+        fullTime: true,
+        internship: false,
+      },
+      ctc: 8000000,
+      stipend: null,
+      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in IT"],
+      requiredCgpa: 7.5,
+      location: ["New York, USA", "Remote"],
+      otherDetails: "We are looking for passionate software engineers to join our team.",
+      registrationStartDate: "2024-11-01",
+      registrationEndDate: "2024-12-01",
+      urlLink: "https://www.techcorp.com/careers",
+    },
+    {
+      id: 2,
+      companyName: "Innovate Inc.",
+      roles: ["Data Scientist", "AI Researcher"],
+      employmentType: {
+        fullTime: true,
+        internship: false,
+      },
+      ctc: 12000000,
+      stipend: null,
+      eligibleCourses: ["B.Tech in Computer Science", "M.Sc in Data Science"],
+      requiredCgpa: 8.0,
+      location: ["San Francisco, USA"],
+      otherDetails: "Innovate Inc. is looking for top-tier data scientists to join our growing AI team.",
+      registrationStartDate: "2024-11-10",
+      registrationEndDate: "2024-12-15",
+      urlLink: "https://www.innovate.com/careers",
+    },
+    {
+      id: 3,
+      companyName: "EduStart",
+      roles: ["Internship - Backend Developer"],
+      employmentType: {
+        fullTime: false,
+        internship: true,
+      },
+      ctc: null,
+      stipend: 30000,
+      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in Information Technology"],
+      requiredCgpa: 7.0,
+      location: ["London, UK", "Remote"],
+      otherDetails: "EduStart is offering a paid internship opportunity for aspiring backend developers.",
+      registrationStartDate: "2024-11-20",
+      registrationEndDate: "2024-12-20",
+      urlLink: null,
+    },
+    {
+      id: 4,
+      companyName: "CloudSoft Solutions",
+      roles: ["Cloud Engineer", "DevOps Specialist"],
+      employmentType: {
+        fullTime: true,
+        internship: false,
+      },
+      ctc: 9000000,
+      stipend: null,
+      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in Cloud Computing"],
+      requiredCgpa: 7.5,
+      location: ["Toronto, Canada"],
+      otherDetails: "Join CloudSoft Solutions and build cutting-edge cloud infrastructure solutions.",
+      registrationStartDate: "2024-11-05",
+      registrationEndDate: "2024-12-05",
+      urlLink: "https://www.cloudsoft.com/careers",
     },
   ]);
-
+  
+  const [showCtc, setShowCtc] = useState(false);
+  const [showStipend, setShowStipend] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
 
@@ -36,6 +91,12 @@ const JobPost = () => {
     formState: { errors },
   } = useForm();
 
+  const handleEmploymentTypeChange = (e) => {
+    const { name, checked } = e.target;
+    if (name === "fullTime") setShowCtc(checked);
+    if (name === "internship") setShowStipend(checked);
+  };
+
   const handleAddJob = () => {
     setCurrentJob(null);
     reset();
@@ -45,66 +106,49 @@ const JobPost = () => {
   const handleEditJob = (job) => {
     setCurrentJob(job);
     reset({
-      jobDriveName: job.jobDriveName,
       companyName: job.companyName,
       roles: job.roles.join(", "),
       employmentType: job.employmentType,
-      ctc: job.ctc.map((item) => `${item.role}: ${item.amount}`).join(", "),
-      stipend: job.stipend
-        .map((item) => `${item.role}: ${item.amount}`)
-        .join(", "),
-      eligibleCourses: job.eligibleCourses
-        .map((item) => `${item.role}: ${item.course}`)
-        .join(", "),
-      requiredCgpa: job.requiredCgpa
-        .map((item) => `${item.role}: ${item.cgpa}`)
-        .join(", "),
-      requiredBacklogs: job.requiredBacklogs
-        .map((item) => `${item.role}: ${item.backlogsAllowed}`)
-        .join(", "),
+      ctc: job.ctc || "",
+      stipend: job.stipend || "",
+      eligibleCourses: job.eligibleCourses.join(", "),
+      requiredCgpa: job.requiredCgpa,
       location: job.location.join(", "),
       otherDetails: job.otherDetails,
-      registrationOpenDate: job.registrationOpenDate,
-      registrationCloseDate: job.registrationCloseDate,
-      numberOfPositions: job.numberOfPositions,
-      requiredSkills: job.requiredSkills.join(", "),
+      registrationStartDate: job.registrationStartDate,
+      registrationEndDate: job.registrationEndDate,
+      urlLink: job.urlLink || "", // New field for URL link
     });
     setShowForm(true);
+    setShowCtc(job.employmentType.fullTime);
+    setShowStipend(job.employmentType.internship);
   };
 
   const handleDeleteJob = (id) => {
     setJobs(jobs.filter((job) => job.id !== id));
   };
-
   const onSubmit = (data) => {
     const newJob = {
       id: currentJob ? currentJob.id : Date.now(),
-      ...data,
-      roles: data.roles.split(",").map((role) => role.trim()),
-      ctc: data.ctc.split(",").map((item) => {
-        const [role, amount] = item.split(":");
-        return { role: role.trim(), amount: Number(amount.trim()) };
-      }),
-      stipend: data.stipend.split(",").map((item) => {
-        const [role, amount] = item.split(":");
-        return { role: role.trim(), amount: Number(amount.trim()) };
-      }),
-      eligibleCourses: data.eligibleCourses.split(",").map((item) => {
-        const [role, course] = item.split(":");
-        return { role: role.trim(), course: course.trim() };
-      }),
-      requiredCgpa: data.requiredCgpa.split(",").map((item) => {
-        const [role, cgpa] = item.split(":");
-        return { role: role.trim(), cgpa: Number(cgpa.trim()) };
-      }),
-      requiredBacklogs: data.requiredBacklogs.split(",").map((item) => {
-        const [role, backlogsAllowed] = item.split(":");
-        return { role: role.trim(), backlogsAllowed: backlogsAllowed.trim() };
-      }),
-      location: data.location.split(",").map((loc) => loc.trim()),
-      requiredSkills: data.requiredSkills
-        .split(",")
-        .map((skill) => skill.trim()),
+      companyName: data.companyName,
+      roles: data.roles ? data.roles.split(",").map((role) => role.trim()) : [],
+      employmentType: {
+        fullTime: showCtc,
+        internship: showStipend,
+      },
+      ctc: showCtc ? Number(data.ctc) : null,
+      stipend: showStipend ? Number(data.stipend) : null,
+      eligibleCourses: data.eligibleCourses
+        ? data.eligibleCourses.split(",").map((course) => course.trim())
+        : [],
+      requiredCgpa: Number(data.requiredCgpa),
+      location: data.location
+        ? data.location.split(",").map((loc) => loc.trim())
+        : [],
+      otherDetails: data.otherDetails,
+      registrationStartDate: data.registrationStartDate,
+      registrationEndDate: data.registrationEndDate,
+      urlLink: data.urlLink || null, // Handle optional URL field
     };
 
     if (currentJob) {
@@ -140,29 +184,34 @@ const JobPost = () => {
             >
               <div className="flex justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold">{job.jobDriveName}</h3>
-                  <p className="text-gray-500">{job.companyName}</p>
+                  <h3 className="text-xl font-semibold">{job.companyName}</h3>
                   <p>
                     <strong>Roles:</strong> {job.roles.join(", ")}
                   </p>
                   <p>
-                    <strong>CTC:</strong>{" "}
-                    {job.ctc.map((item, idx) => (
-                      <span key={idx}>
-                        {item.role}: {item.amount}
-                      </span>
-                    ))}
+                    <strong>CTC:</strong> {job.ctc || "Not Applicable"}
+                  </p>
+                  <p>
+                    <strong>Stipend:</strong> {job.stipend || "Not Applicable"}
                   </p>
                   <p>
                     <strong>Eligible Courses:</strong>{" "}
-                    {job.eligibleCourses.map((item, idx) => (
-                      <span key={idx}>
-                        {item.role}: {item.course}
-                      </span>
-                    ))}
+                    {job.eligibleCourses.join(", ")}
                   </p>
                   <p className="text-gray-500">{job.location.join(", ")}</p>
                   <p className="mt-4">{job.otherDetails}</p>
+                  {job.urlLink && (
+                    <p className="mt-2">
+                      URL:{" "}
+                      <a
+                        href={job.urlLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {job.urlLink}
+                      </a>
+                    </p>
+                  )}
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -191,21 +240,7 @@ const JobPost = () => {
               {currentJob ? "Edit Job Posting" : "Add New Job Posting"}
             </h2>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Job Drive Name
-                </label>
-                <input
-                  {...register("jobDriveName", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.jobDriveName && (
-                  <p className="text-red-500 text-sm">
-                    Job Drive Name is required
-                  </p>
-                )}
-              </div>
-
+              {/* Company Name */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Company Name
@@ -221,6 +256,7 @@ const JobPost = () => {
                 )}
               </div>
 
+              {/* Roles */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">Roles</label>
                 <input
@@ -233,29 +269,77 @@ const JobPost = () => {
                 )}
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">CTC</label>
-                <input
-                  {...register("ctc", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:3000000"
-                />
-                {errors.ctc && (
-                  <p className="text-red-500 text-sm">CTC is required</p>
-                )}
-              </div>
-
+              {/* Employment Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Stipend
+                  Employment Type
                 </label>
-                <input
-                  {...register("stipend")}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Intern:50000"
-                />
+                <div>
+                  <input
+                    type="checkbox"
+                    name="fullTime"
+                    onChange={handleEmploymentTypeChange}
+                  />
+                  <label className="ml-2">Full-Time</label>
+                  <input
+                    type="checkbox"
+                    name="internship"
+                    onChange={handleEmploymentTypeChange}
+                    className="ml-4"
+                  />
+                  <label className="ml-2">Internship</label>
+                </div>
               </div>
 
+              {/* CTC */}
+
+              {showCtc && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">CTC</label>
+                  <input
+                    type="number"
+                    {...register("ctc", {
+                      required: showCtc,
+                      min: 0,
+                      max: 10000000,
+                      valueAsNumber: true,
+                    })}
+                    className="border px-4 py-2 rounded w-full"
+                  />
+                  {errors.ctc && (
+                    <p className="text-red-500 text-sm">
+                      CTC should be non-negative and ≤ 10,000,000
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Stipend */}
+              {/* Stipend */}
+              {showStipend && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Stipend
+                  </label>
+                  <input
+                    type="number"
+                    {...register("stipend", {
+                      required: showStipend,
+                      min: 0,
+                      max: 10000000,
+                      valueAsNumber: true,
+                    })}
+                    className="border px-4 py-2 rounded w-full"
+                  />
+                  {errors.stipend && (
+                    <p className="text-red-500 text-sm">
+                      Stipend should be non-negative and ≤ 10,000,000
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Eligible Courses */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Eligible Courses
@@ -263,7 +347,7 @@ const JobPost = () => {
                 <input
                   {...register("eligibleCourses", { required: true })}
                   className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:B.Tech"
+                  placeholder="Enter eligible courses, separated by commas"
                 />
                 {errors.eligibleCourses && (
                   <p className="text-red-500 text-sm">
@@ -272,84 +356,57 @@ const JobPost = () => {
                 )}
               </div>
 
+              {/* Required CGPA */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Required CGPA
                 </label>
                 <input
-                  {...register("requiredCgpa", { required: true })}
+                  type="number"
+                  {...register("requiredCgpa", {
+                    required: true,
+                    min: 0,
+                    max: 10,
+                    valueAsNumber: true,
+                  })}
                   className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:8"
                 />
                 {errors.requiredCgpa && (
                   <p className="text-red-500 text-sm">
-                    Required CGPA is necessary
+                    CGPA must be between 0 and 10
                   </p>
                 )}
               </div>
 
+              {/* URL Link */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Backlogs Allowed
+                  URL Link (optional)
                 </label>
                 <input
-                  {...register("requiredBacklogs", { required: true })}
+                  type="url"
+                  {...register("urlLink")}
                   className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:No"
+                  placeholder="https://example.com"
                 />
-                {errors.requiredBacklogs && (
-                  <p className="text-red-500 text-sm">
-                    Specify if backlogs are allowed or not
-                  </p>
-                )}
               </div>
 
+              {/* Location */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Job Location
+                  Location
                 </label>
                 <input
                   {...register("location", { required: true })}
                   className="border px-4 py-2 rounded w-full"
-                  placeholder="Separate locations with commas"
+                  placeholder="Enter locations, separated by commas"
                 />
                 {errors.location && (
                   <p className="text-red-500 text-sm">Location is required</p>
                 )}
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Required Skills
-                </label>
-                <input
-                  {...register("requiredSkills", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Separate skills with commas"
-                />
-                {errors.requiredSkills && (
-                  <p className="text-red-500 text-sm">
-                    Required Skills are needed
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Number of Positions
-                </label>
-                <input
-                  {...register("numberOfPositions", { required: true })}
-                  type="number"
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.numberOfPositions && (
-                  <p className="text-red-500 text-sm">
-                    Number of positions is required
-                  </p>
-                )}
-              </div>
-
+              {/* Other Details */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Other Details
@@ -357,51 +414,46 @@ const JobPost = () => {
                 <textarea
                   {...register("otherDetails")}
                   className="border px-4 py-2 rounded w-full"
-                ></textarea>
+                  rows="4"
+                />
               </div>
+
+              {/* Date Picker for Registration Period */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Registration Start Date
+                  Registration Period
                 </label>
-                <input
-                  type="date"
-                  {...register("registrationOpenDate", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.registrationOpenDate && (
-                  <p className="text-red-500 text-sm">Start date is required</p>
+                <div className="flex space-x-4">
+                  <input
+                    type="date"
+                    {...register("registrationStartDate", { required: true })}
+                    className="border px-4 py-2 rounded"
+                  />
+                  <input
+                    type="date"
+                    {...register("registrationEndDate", { required: true })}
+                    className="border px-4 py-2 rounded"
+                  />
+                </div>
+                {errors.registrationStartDate && (
+                  <p className="text-red-500 text-sm">
+                    Registration Start Date is required
+                  </p>
+                )}
+                {errors.registrationEndDate && (
+                  <p className="text-red-500 text-sm">
+                    Registration End Date is required
+                  </p>
                 )}
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Registration End Date
-                </label>
-                <input
-                  type="date"
-                  {...register("registrationCloseDate", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.registrationCloseDate && (
-                  <p className="text-red-500 text-sm">End date is required</p>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  {currentJob ? "Update Job" : "Add Job"}
-                </button>
-              </div>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="bg-primary text-white px-6 py-2 rounded mt-4"
+              >
+                {currentJob ? "Update Job Posting" : "Add Job Posting"}
+              </button>
             </form>
           </div>
         </div>

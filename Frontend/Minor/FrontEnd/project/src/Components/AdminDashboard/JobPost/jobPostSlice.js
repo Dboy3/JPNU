@@ -1,87 +1,88 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Async thunks for CRUD operations
-export const fetchJobPosts = createAsyncThunk("jobPosts/fetchAll", async () => {
-  const response = await fetch("/api/jobPosts", {
-    method: "GET",
-    credentials: "include", // Automatically includes cookies
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+// Async Thunk to fetch job posts
+export const fetchJobPosts = createAsyncThunk('jobs/fetchJobPosts', async () => {
+  const response = await fetch('/api/job-posts');
+  if (!response.ok) {
+    throw new Error('Failed to fetch job posts');
+  }
   return response.json();
 });
 
-export const addJobPost = createAsyncThunk("jobPosts/add", async (newJobPost) => {
-  const response = await fetch("/api/jobPosts", {
-    method: "POST",
-    credentials: "include", // Automatically includes cookies
+// Async Thunk to add a new job post
+export const addJobPost = createAsyncThunk('jobs/addJobPost', async (newJob) => {
+  const response = await fetch('/api/job-posts', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(newJobPost),
+    body: JSON.stringify(newJob),
   });
+  if (!response.ok) {
+    throw new Error('Failed to add job post');
+  }
   return response.json();
 });
 
-export const updateJobPost = createAsyncThunk("jobPosts/update", async (updatedJobPost) => {
-  const response = await fetch(`/api/jobPosts/${updatedJobPost.id}`, {
-    method: "PUT",
-    credentials: "include", // Automatically includes cookies
+// Async Thunk to update a job post
+export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updatedJob) => {
+  const response = await fetch(`/api/job-posts/${updatedJob.id}`, {
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(updatedJobPost),
+    body: JSON.stringify(updatedJob),
   });
+  if (!response.ok) {
+    throw new Error('Failed to update job post');
+  }
   return response.json();
 });
 
-export const deleteJobPost = createAsyncThunk("jobPosts/delete", async (id) => {
-  await fetch(`/api/jobPosts/${id}`, {
-    method: "DELETE",
-    credentials: "include", // Automatically includes cookies
-    headers: {
-      "Content-Type": "application/json",
-    },
+// Async Thunk to delete a job post
+export const deleteJobPost = createAsyncThunk('jobs/deleteJobPost', async (id) => {
+  const response = await fetch(`/api/job-posts/${id}`, {
+    method: 'DELETE',
   });
-  return id; // Return the ID to remove it from the state
+  if (!response.ok) {
+    throw new Error('Failed to delete job post');
+  }
+  return id;
 });
 
-// Job Post Slice
+// Job Post slice
 const jobPostSlice = createSlice({
-  name: "jobPosts",
+  name: 'jobs',
   initialState: {
-    jobPosts: [],
-    status: "idle",
+    jobs: [],
+    status: 'idle', // 'idle', 'loading', 'succeeded', 'failed'
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchJobPosts.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(fetchJobPosts.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.jobPosts = action.payload;
+        state.status = 'succeeded';
+        state.jobs = action.payload;
       })
       .addCase(fetchJobPosts.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = 'failed';
         state.error = action.error.message;
       })
       .addCase(addJobPost.fulfilled, (state, action) => {
-        state.jobPosts.push(action.payload);
+        state.jobs.push(action.payload);
       })
       .addCase(updateJobPost.fulfilled, (state, action) => {
-        const index = state.jobPosts.findIndex(
-          (job) => job.id === action.payload.id
-        );
+        const index = state.jobs.findIndex(job => job.id === action.payload.id);
         if (index !== -1) {
-          state.jobPosts[index] = action.payload;
+          state.jobs[index] = action.payload;
         }
       })
       .addCase(deleteJobPost.fulfilled, (state, action) => {
-        state.jobPosts = state.jobPosts.filter((job) => job.id !== action.payload);
+        state.jobs = state.jobs.filter(job => job.id !== action.payload);
       });
   },
 });

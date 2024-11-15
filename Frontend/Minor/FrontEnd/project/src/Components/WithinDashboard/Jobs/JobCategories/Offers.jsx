@@ -4,35 +4,29 @@ import JobCard from "./JobCard";
 function Offers() {
   const offeredJobs = [
     {
-      id: "5",
-      companyName: "GreenTech Innovations",
-      role: "Environmental Engineer",
-      internship: {
-        name: "internship",
-        duration: "6 months",
-        stipend: 22000,
+      id: 4,
+      companyName: "CloudSoft Solutions",
+      roles: ["Cloud Engineer", "DevOps Specialist"],
+      employmentType: {
+        fullTime: true,
+        internship: false,
       },
-      fulltime: {
-        name: "fulltime",
-        ctc: 350000,
-      },
-      location: ["Chennai", "Hyderabad"],
-      NumberOfPositions: 2,
-      requiredSkills: [
-        "Environmental Impact Assessment",
-        "Data Analysis",
-        "Sustainability",
+      ctc: 9000000,
+      stipend: null,
+      eligibleCourses: [
+        "B.Tech in Computer Science",
+        "B.Tech in Cloud Computing",
       ],
-      eligibleBranch: ["Environmental Engineering", "Civil Engineering"],
-      BacklogsAllowed: "Yes",
-      StartDate: "2024-06-01",
-      EndDate: "2024-07-01",
-      OtherDetails:
-        "Candidates should have an interest in sustainability and green technologies.",
+      requiredCgpa: 7.5,
+      location: ["Toronto, Canada"],
+      otherDetails:
+        "Join CloudSoft Solutions and build cutting-edge cloud infrastructure solutions.",
+      registrationStartDate: "2024-11-05",
+      registrationEndDate: "2024-12-05",
+      urlLink: "https://www.cloudsoft.com/careers",
     },
   ];
 
-  
   return (
     <div className="space-y-4">
       {offeredJobs.map((job) => (

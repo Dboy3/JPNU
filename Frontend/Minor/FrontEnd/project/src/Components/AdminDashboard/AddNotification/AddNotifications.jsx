@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,47 +6,57 @@ import {
   addNotification,
   editNotification,
   deleteNotification,
+  getNotificationList,
+  fetchNotifications,
 } from "./notificationSlice";
 
 const AddNotifications = () => {
-  const notifications = useSelector((state) => state.notifications.notifications);
   const dispatch = useDispatch();
+
+  const notifications = useSelector(getNotificationList);
   const [showForm, setShowForm] = useState(false);
   const [editingNotificationId, setEditingNotificationId] = useState(null);
-
+  
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-
+  
   const handleAddNotification = () => {
-    setEditingNotificationId(null);  // Clear editing state for new notification
-    reset();  // Reset form values
-    setShowForm(true);  // Show form
+    setEditingNotificationId(null); // Clear editing state for new notification
+    reset(); // Reset form values
+    setShowForm(true); // Show form
   };
-
+  
   const handleEditNotification = (notification) => {
-    setEditingNotificationId(notification.id);  // Set the id of the notification being edited
-    reset({ content: notification.content });  // Pre-fill form with existing content
-    setShowForm(true);  // Show form
+    setEditingNotificationId(notification.id); // Set the id of the notification being edited
+    reset({ content: notification.content }); // Pre-fill form with existing content
+    setShowForm(true); // Show form
   };
-
+  
   const handleDeleteNotification = (id) => {
     dispatch(deleteNotification(id)); // Ensure it's correctly deleting from Redux
   };
-
+  
+  useEffect(() => {
+    dispatch(fetchNotifications());
+  }, [dispatch]);
+  
   const onSubmit = (data) => {
+    console.log(data);
     if (editingNotificationId) {
       // Editing an existing notification
-      dispatch(editNotification({ id: editingNotificationId, content: data.content }));
+      dispatch(
+        editNotification({ id: editingNotificationId, content: data.content })
+      );
     } else {
       // Adding a new notification
-      dispatch(addNotification({ content: data.content }));
+      dispatch(addNotification({ message: data.content }));
     }
 
-    setShowForm(false);  // Hide the form after submit
+    setShowForm(false); // Hide the form after submit
   };
 
   return (
@@ -61,23 +71,27 @@ const AddNotifications = () => {
         </button>
       </div>
 
+
       {notifications.length === 0 ? (
         <p>No notifications available. Add one using the button above.</p>
       ) : (
         <div className="grid gap-8">
           {notifications.map((notification) => (
             <div
-              key={notification.id}
+              key={notification._id} // Use _id for unique key
               className="p-6 border rounded-lg shadow-md bg-white"
             >
               <div className="flex justify-between">
                 <div>
                   <p className="text-gray-500">
-                    <strong>Time:</strong> {notification.time}
+                    <strong>Time:</strong>{" "}
+                    {new Date(notification.date).toLocaleString()}
+                    {/* Format the date using JavaScript's toLocaleString method */}
                   </p>
-                  <p className="mt-4">{notification.content}</p>
+                  <p className="mt-4">{notification.message}</p>
+                  {/* Use message instead of content */}
                 </div>
-                <div className="flex space-x-2">
+                {/* <div className="flex space-x-2">
                   <button
                     onClick={() => handleEditNotification(notification)}
                     className="text-blue-500"
@@ -85,12 +99,12 @@ const AddNotifications = () => {
                     <FaEdit />
                   </button>
                   <button
-                    onClick={() => handleDeleteNotification(notification.id)}
+                    onClick={() => handleDeleteNotification(notification._id)} // Use _id for deletion
                     className="text-red-500"
                   >
                     <FaTrashAlt />
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           ))}

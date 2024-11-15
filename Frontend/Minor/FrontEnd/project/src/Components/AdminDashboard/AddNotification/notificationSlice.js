@@ -1,33 +1,60 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Initial state
-const initialState = {
-  notifications: [
-    {
-      id: 1,
-      time: "14/11/2024, 17:23:07",
-      content:
-        "Tech Corp is hiring a Software Developer to develop and maintain web applications. The application window opens on 12th August 2024 at 7:30 AM and closes on 14th August 2024 at 12:00 AM.",
-    },
-    {
-      id: 2,
-      time: "13/11/2024, 09:15:30",
-      content:
-        "Reminder: Application deadline approaching for Design Intern position at Creative Minds Inc. Closes on 15th November 2024.",
-    },
-    {
-      id: 3,
-      time: "10/11/2024, 14:50:15",
-      content:
-        "New opening: Data Analyst role at Analytics Solutions. Apply before 20th November 2024.",
-    },
-  ],
+const initState = {
+  notifications: [],
+  state: null,
+  error: null,
 };
+
+export const fetchNotifications = createAsyncThunk(
+  "notifications/fetchNotification",
+  async () => {
+    console.log("fetchNotifications is called");
+
+    // Make sure the URL is correct and does not contain any invisible characters.
+    const response = await fetch("http://localhost:8000/api/notification/pull");
+
+    // If the response is not okay, throw an error.
+    if (!response.ok) {
+      throw new Error("Failed to fetch notifications");
+    }
+
+    // Parse the JSON data from the response
+    const data = await response.json();
+    console.log("The data: ", data);
+
+    // Return the data to be used in the reducer
+    return data;
+  }
+);
+
+export const addNotificationAync = createAsyncThunk(
+  "notifications/addNotification",
+  async (obj) => {
+    const response = await fetch(
+      "http://localhost:8000/api/notification/push",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(obj),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to add notification");
+    }
+    const data = await response.json();
+    console.log("the notification is ",data.notification);
+    return data.notification;
+  }
+);
 
 // Slice
 const notificationSlice = createSlice({
   name: "notifications",
-  initialState,
+  initialState: initState,
   reducers: {
     addNotification: (state, action) => {
       const newNotification = {
@@ -51,11 +78,27 @@ const notificationSlice = createSlice({
       );
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchNotifications.pending, (state) => {
+        state.state = "loading";
+        state.error = null;
+      })
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.state = "succeeded";
+        state.notifications = action.payload;
+        state.error = null;
+      })
+      .addCase(addNotificationAync.fulfilled, (state, action) => {
+        state.state = "succeeded";
+        state.notifications.push(action.payload);
+      });
+  },
 });
 
 export const { addNotification, editNotification, deleteNotification } =
   notificationSlice.actions;
 
-
-
 export default notificationSlice.reducer;
+
+export const getNotificationList = (state) => state.notifications.notifications;

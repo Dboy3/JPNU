@@ -7,7 +7,7 @@ function JobCard({ job }) {
   return (
     <NavLink
       className="space-x-4 border bg-white shadow-lg p-4 rounded-lg flex items-center"
-      to={`/d/jobs/${job.id}`}
+      to={`/d/jobs/${job._id}`}
     >
       <div className="">
         <div className="flex-1">

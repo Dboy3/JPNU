@@ -46,7 +46,6 @@ export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updat
     throw new Error('Failed to update job post');
   }
   const data = await response.json() ; 
-  console.log(data , "update fuction");
   return data;
 });
 
@@ -79,7 +78,6 @@ const jobPostSlice = createSlice({
       .addCase(fetchJobPosts.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.jobs = action.payload;
-        console.log(state.jobs , "from addcase");
       })
       .addCase(fetchJobPosts.rejected, (state, action) => {
         state.status = 'failed';

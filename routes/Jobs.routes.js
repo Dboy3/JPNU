@@ -24,6 +24,7 @@ router.post('/post', verifyAdminRole, createJobPosting);
 // Route to get all job postings
 // GET /api/job-postings
 router.get('/get', getJobPostings);
+router.get('/get/:id',getJobById) ; 
 
 // Route to delete a job posting (Admin only)
 // DELETE /api/job-postings/:postId

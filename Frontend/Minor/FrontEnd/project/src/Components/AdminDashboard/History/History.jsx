@@ -121,7 +121,7 @@ const History = () => {
                 <>
                     {/* Bar Chart Section */}
                     <section className="mb-5">
-                        <h1 className="text-center mb-3">Average Package by Year</h1>
+                        <h2 className="text-center mb-3">Average Package by Year</h2>
                         <div style={{ width: '80%', margin: '0 auto' }}>
                             <Bar data={barChartData} options={barChartOptions} />
                         </div>
@@ -129,7 +129,7 @@ const History = () => {
 
                     {/* Pie Chart Section */}
                     <section>
-                        <h1 className="text-center mb-3">CTC Contribution by Company</h1>
+                        <h2 className="text-center mb-3">CTC Contribution by Company</h2>
                         <div style={{ width: '60%', margin: '0 auto' }}>
                             <Pie data={pieChartData} options={pieChartOptions} />
                         </div>

@@ -31,6 +31,7 @@ import ExpenseList from "./Components/AdminDashboard/ExpenseList/ExpenseList";
 import AddNotifications from "./Components/AdminDashboard/AddNotification/AddNotifications";
 import PlacedStudents from "./Components/AdminDashboard/PlacedStudent/PlacedStduent";
 import History from "./Components/AdminDashboard/History/History";
+import AddDetails from "./Components/AdminDashboard/AddDetails/AddDetails";
 
 import { selectUser } from "./Pages/auth";
 import { useSelector } from "react-redux";
@@ -53,6 +54,7 @@ function App() {
             <Route path="notification" element={<AddNotifications />} />
             <Route path="placedstudents" element={<PlacedStudents />} />
             <Route path="history" element={<History/>} />
+            <Route path="addDetails" element={<AddDetails/>} />
           </Route>
         ) : user.role === "Student" ? (
           // Routes accessible to student role

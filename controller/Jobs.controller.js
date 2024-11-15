@@ -340,7 +340,7 @@ export const addApplication = async (req, res) => {
 // API to fetch applications based on userId or postId
 export const getApplications = async (req, res) => {
   try {
-    const { userId, postId } = req.query;
+    const { userId, postId } = req.body;
 
     if (userId) {
       // Find applications for this userId

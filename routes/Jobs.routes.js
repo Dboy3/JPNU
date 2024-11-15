@@ -55,5 +55,5 @@ router.put('/expenditure/:id', verifyRole(['SPC', 'Admin']), updateExpenditure);
 router.get('/expenditure', verifyRole(['admin']), getAllExpenditures);
 router.get('/expenditure/filter', verifyRole(['admin']), getFilteredExpenditures);
 router.post('/addApplication', authenticateUser, addApplication);
-router.get('/getApplications', authenticateUser, getApplications);
+router.post('/getApplications', authenticateUser, getApplications);
 export default router;

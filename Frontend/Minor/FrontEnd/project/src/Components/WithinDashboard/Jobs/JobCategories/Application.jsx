@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import JobCard from "./JobCard";
-import { useSelector } from "react-redux";
-import { getApplicationsList } from "./jobApplicationSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getApplicationsByUserId, getApplicationsList } from "./jobApplicationSlice";
+import { selectUser } from "../../../../Pages/auth";
 function Application() {
 
-  
+
   // const userAppliedJobs = [
   //   {
   //     id: 4,
@@ -29,8 +30,15 @@ function Application() {
 
   // simply use useEffect and dispatch the getJobOppotunites 
 
+  const dispatch = useDispatch() ; 
+  const user = useSelector(selectUser) ; 
+  
+  useEffect ( () => {
+    const data = {userId : user.userId , postId : null }
+    dispatch(getApplicationsByUserId(data)); 
+  } ,[dispatch , user])
+  
   const userAppliedJobs = useSelector(getApplicationsList) ; 
-
   return (
     <div className="space-y-4">
       {userAppliedJobs.map((job) => (

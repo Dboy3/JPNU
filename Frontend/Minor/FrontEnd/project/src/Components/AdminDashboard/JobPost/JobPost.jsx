@@ -3,7 +3,6 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
 const JobPost = () => {
-  // const [jobs, setJobs] = useState([]);
   const [jobs, setJobs] = useState([
     {
       id: 1,

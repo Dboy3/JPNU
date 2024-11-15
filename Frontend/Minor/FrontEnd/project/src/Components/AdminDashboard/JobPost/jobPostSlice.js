@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Async Thunk to fetch job posts
 export const fetchJobPosts = createAsyncThunk('jobs/fetchJobPosts', async () => {
-  const response = await fetch('/api/job-posts');
+  const response = await fetch('http://localhost:8000/api/jobs/get');
   if (!response.ok) {
     throw new Error('Failed to fetch job posts');
   }
@@ -11,11 +11,12 @@ export const fetchJobPosts = createAsyncThunk('jobs/fetchJobPosts', async () => 
 
 // Async Thunk to add a new job post
 export const addJobPost = createAsyncThunk('jobs/addJobPost', async (newJob) => {
-  const response = await fetch('/api/job-posts', {
+  const response = await fetch('http://localhost:8000/api/jobs/post', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: "include",
     body: JSON.stringify(newJob),
   });
   if (!response.ok) {
@@ -26,11 +27,12 @@ export const addJobPost = createAsyncThunk('jobs/addJobPost', async (newJob) => 
 
 // Async Thunk to update a job post
 export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updatedJob) => {
-  const response = await fetch(`/api/job-posts/${updatedJob.id}`, {
+  const response = await fetch(`http://localhost:8000/api/jobs/${updatedJob.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: "include",
     body: JSON.stringify(updatedJob),
   });
   if (!response.ok) {
@@ -40,9 +42,10 @@ export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updat
 });
 
 // Async Thunk to delete a job post
-export const deleteJobPost = createAsyncThunk('jobs/deleteJobPost', async (id) => {
-  const response = await fetch(`/api/job-posts/${id}`, {
+export const deleteJobPost = createAsyncThunk('jobs/deleteJobPost', async (job) => {
+  const response = await fetch(`http://localhost:8000/api/jobs/${job.id}`, {
     method: 'DELETE',
+    credentials: "include",
   });
   if (!response.ok) {
     throw new Error('Failed to delete job post');

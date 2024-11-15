@@ -3,106 +3,59 @@ import mongoose from 'mongoose';
 const jobPostingSchema = new mongoose.Schema({
     postId: {
         type: String,
-        required: true,
-        unique: true
-    },
-    title: {
-        type: String,
         required: true
     },
     companyName: {
         type: String,
-        required: true
+        required: true,
     },
-    role: {
-        type: String,
-        required: true
+    roles: {
+        type: [String],
+        required: true,
     },
-    internship: {
-        duration: {
-            type: String
+    employmentType: {
+        fullTime: {
+            type: Boolean,
+            required: true,
         },
-        stipend: {
-            type: Number
+        internship: {
+            type: Boolean,
+            required: true,
         }
     },
-    fulltime: {
-        ctc: {
-            type: Number
-        }
+    ctc: {
+        type: Number
     },
-    locations: [
-        {
-            type: String,
-            required: true
-        }
-    ],
-    numberOfPositions: {
+    stipend: {
+        type: Number
+    },
+    eligibleCourses: {
+        type: [String],
+        required: true,
+    },
+    requiredCgpa: {
         type: Number,
-        required: true
+        required: true,
     },
-    requiredSkills: [
-        {
-            type: String
-        }
-    ],
-    eligibleBranch: [
-        {
-            type: String
-        }
-    ],
-    backlogsAllowed: {
-        type: String,
-        enum: ['Yes', 'No'],
-        default: 'No'
-    },
-    startDate: {
-        type: Date,
-        set: function (value) {
-            // Ensure value is in DD/MM/YYYY format and convert to YYYY-MM-DD
-            const [day, month, year] = value.split('/'); // Assuming the input is in DD/MM/YYYY format
-            return new Date(`${year}-${month}-${day}`); // MongoDB expects the date in YYYY-MM-DD format
-        },
-    },
-    endDate: {
-        type: Date,
-        
-        set: function (value) {
-            // Ensure value is in DD/MM/YYYY format and convert to YYYY-MM-DD
-            const [day, month, year] = value.split('/'); // Assuming the input is in DD/MM/YYYY format
-            return new Date(`${year}-${month}-${day}`); // MongoDB expects the date in YYYY-MM-DD format
-        },
+    location: {
+        type: [String],
+        required: true,
     },
     otherDetails: {
-        type: String
-    },
-    registrationOpenDate: {
-        type: Date,
-        required: true,
-        set: function (value) {
-            // Ensure value is in DD/MM/YYYY format and convert to YYYY-MM-DD
-            const [day, month, year] = value.split('/'); // Assuming the input is in DD/MM/YYYY format
-            return new Date(`${year}-${month}-${day}`); // MongoDB expects the date in YYYY-MM-DD format
-        },
-    },
-    registrationCloseDate: {
-        type: Date,
-        required: true,
-        set: function (value) {
-            // Ensure value is in DD/MM/YYYY format and convert to YYYY-MM-DD
-            const [day, month, year] = value.split('/'); // Assuming the input is in DD/MM/YYYY format
-            return new Date(`${year}-${month}-${day}`); // MongoDB expects the date in YYYY-MM-DD format
-        },
-    },
-    postDate: {
-        type: Date,
-        default: Date.now
-    },
-    status: {
         type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
-    }
+    },
+    registrationStartDate: {
+        type: Date,
+        required: true,
+    },
+    registrationEndDate: {
+        type: Date,
+        required: true,
+    },
+    urlLink: {
+        type: String,
+        required: true,
+    },
 }, { timestamps: true });
 
 const applicationSchema = new mongoose.Schema({

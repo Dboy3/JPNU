@@ -1,7 +1,18 @@
+import React, { useState } from "react";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addNotification,
+  editNotification,
+  deleteNotification,
+} from "./notificationSlice";
+
 const AddNotifications = () => {
+  const notifications = useSelector((state) => state.notifications.notifications);
   const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
-  const [currentNotification, setCurrentNotification] = useState(null);
+  const [editingNotificationId, setEditingNotificationId] = useState(null);
 
   const {
     register,
@@ -11,15 +22,15 @@ const AddNotifications = () => {
   } = useForm();
 
   const handleAddNotification = () => {
-    setCurrentNotification(null);
-    reset();
-    setShowForm(true);
+    setEditingNotificationId(null);  // Clear editing state for new notification
+    reset();  // Reset form values
+    setShowForm(true);  // Show form
   };
 
   const handleEditNotification = (notification) => {
-    setCurrentNotification(notification);
-    reset({ content: notification.content });
-    setShowForm(true);
+    setEditingNotificationId(notification.id);  // Set the id of the notification being edited
+    reset({ content: notification.content });  // Pre-fill form with existing content
+    setShowForm(true);  // Show form
   };
 
   const handleDeleteNotification = (id) => {
@@ -27,17 +38,15 @@ const AddNotifications = () => {
   };
 
   const onSubmit = (data) => {
-    const newNotification = {
-      content: data.content,
-    };
-
-    if (currentNotification) {
-      dispatch(editNotification({ id: currentNotification.id, content: data.content }));
+    if (editingNotificationId) {
+      // Editing an existing notification
+      dispatch(editNotification({ id: editingNotificationId, content: data.content }));
     } else {
-      dispatch(addNotification(newNotification)); // Dispatch to add notification
+      // Adding a new notification
+      dispatch(addNotification({ content: data.content }));
     }
 
-    setShowForm(false); // Hide the form after submit
+    setShowForm(false);  // Hide the form after submit
   };
 
   return (
@@ -92,7 +101,7 @@ const AddNotifications = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-screen overflow-y-auto">
             <h2 className="text-2xl mb-4">
-              {currentNotification ? "Edit Notification" : "Add Notification"}
+              {editingNotificationId ? "Edit Notification" : "Add Notification"}
             </h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4">
@@ -120,7 +129,7 @@ const AddNotifications = () => {
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded"
                 >
-                  {currentNotification
+                  {editingNotificationId
                     ? "Update Notification"
                     : "Add Notification"}
                 </button>
@@ -132,3 +141,5 @@ const AddNotifications = () => {
     </div>
   );
 };
+
+export default AddNotifications;

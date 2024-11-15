@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const experienceDetailsSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { String, required: true },
     companyName: { type: String, required: true },
     title: { type: String, required: true },
     startDate: { type: Date, required: true },

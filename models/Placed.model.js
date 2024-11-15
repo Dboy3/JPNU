@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 // Define the schema for placed students
 const PlacedStudentsSchema = new mongoose.Schema({
-    userID: {
-        type: mongoose.Schema.Types.ObjectId,
+    userId: {
+        type: String,
         ref: 'User',
         required: true
     },

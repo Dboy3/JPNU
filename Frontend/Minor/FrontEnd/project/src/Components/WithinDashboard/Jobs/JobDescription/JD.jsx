@@ -5,6 +5,8 @@ import {
   getJobById,
   getSingleJob,
 } from "../../../AdminDashboard/JobPost/jobPostSlice";
+import { selectUser } from "../../../../Pages/auth";
+import { applyForJob } from "../JobCategories/jobApplicationSlice";
 
 const JD = () => {
   const { id } = useParams();
@@ -15,6 +17,7 @@ const JD = () => {
   }, [dispatch, id]);
 
   const job = useSelector(getSingleJob);
+  const user = useSelector(selectUser);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -32,8 +35,10 @@ const JD = () => {
     if (isChecked) {
       setIsApplied(true);
       setIsModalOpen(false);
-      
-      console.log("hurrah");
+
+      const data = { userId : user.userId , postId : job.postId } ; 
+      console.log("dispatch the applcation");
+      dispatch(applyForJob(data)) ; 
     } else {
       alert("Please check the agreement before submitting.");
     }

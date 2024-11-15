@@ -51,7 +51,7 @@ const authSlice = createSlice({
         state.loggedInUser = action.payload.user; // Store user data on successful login
         state.message = "Login successful"; // Store success message
         state.error = null; // Reset error
-        console.log(state.loggedInUser);
+        console.log("the user is ",state.loggedInUser);
       })
       .addCase(checkUser.rejected, (state, action) => {
         state.status = "idle";

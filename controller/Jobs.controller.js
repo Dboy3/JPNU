@@ -127,12 +127,10 @@ export const getJobById = async (req, res) => {
     const jobPosting = await JobPosting.findById(id).select("-__v").exec(); // Exclude __v if not needed
 
     if (!jobPosting) {
-      return res
-        .status(404)
-        .json({ message: "Job posting not found"});
+      return res.status(404).json({ message: "Job posting not found" });
     }
 
-    res.status(200).json({ job : jobPosting });
+    res.status(200).json({ job: jobPosting });
   } catch (error) {
     console.error(error);
     if (error.kind === "ObjectId") {
@@ -321,10 +319,18 @@ export const addApplication = async (req, res) => {
     // Create a new application entry
     const newApplication = new Application({ userId, postId });
     await newApplication.save();
+    const jobPost = await JobPosting.findById(postId); // Find the job post by its ID
 
-    res
-      .status(201)
-      .json({ message: "Application added successfully", newApplication });
+    if (!jobPost) {
+      return res.status(404).json({ message: "Job post not found" });
+    }
+
+
+    res.status(201).json({
+      message: "Application added successfully",
+      application : newApplication,
+      job : jobPost, 
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error adding application", error });

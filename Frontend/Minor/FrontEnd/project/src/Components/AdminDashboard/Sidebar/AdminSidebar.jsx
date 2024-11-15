@@ -14,6 +14,7 @@ const pages = [
   { name: "ExpenseList",  path: "/expenselist" },
   { name: "Notifications",  path: "/notification" },
   { name: "PlacedStudents",  path: "/placedstudents" },
+  { name: "PreviousRecords",  path: "/history" },
 ];
 
 function AdminSidebar({onPageChange }) {

@@ -56,4 +56,8 @@ router.get('/expenditure', verifyRole(['admin']), getAllExpenditures);
 router.get('/expenditure/filter', verifyRole(['admin']), getFilteredExpenditures);
 router.post('/addApplication', authenticateUser, addApplication);
 router.post('/getApplications', authenticateUser, getApplications);
+import { getAllPlacedData } from "../controller/Jobs.controller.js";
+router.get('/getallplaced',getAllPlacedData);
+
+
 export default router;

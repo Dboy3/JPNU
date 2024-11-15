@@ -21,7 +21,6 @@ const studentsData = [
     role: "Student",
     userId: "23456789-4f2e-4788-ba62-1234db6c2723",
   },
-  // Add more student entries as needed
 ];
 
 const companiesData = ["Google", "Tech Innovators", "Global Analytics"];

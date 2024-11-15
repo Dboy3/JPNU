@@ -159,7 +159,7 @@ const JobPost = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex space-x-2">
+                {/* <div className="flex space-x-2">
                   <button
                     onClick={() => handleEditJob(job)}
                     className="text-blue-500"
@@ -172,7 +172,7 @@ const JobPost = () => {
                   >
                     <FaTrashAlt />
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           ))}

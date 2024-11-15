@@ -7,6 +7,7 @@ import jobPostReducer from "../Components/AdminDashboard/JobPost/jobPostSlice";
 import expenseReducer from "../Components/SPC/expenseSlice";
 import notificationReducer from "../Components/AdminDashboard/AddNotification/notificationSlice"
 import jobApplicationReducer from "../Components/WithinDashboard/Jobs/JobCategories/jobApplicationSlice" 
+import placedStudentsReducer from "../Components/AdminDashboard/History/placedStudentsSlice"
 
 const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
     jobposts: jobPostReducer,
     expenses : expenseReducer,
     notifications : notificationReducer,
-    jobApplication : jobApplicationReducer
+    jobApplication : jobApplicationReducer,
+    placedStudents : placedStudentsReducer
   },
 });
 

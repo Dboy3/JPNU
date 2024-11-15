@@ -12,6 +12,8 @@ const pages = [
   { name: "JobPost",  path: "/" },
   { name: "GetStudentList",  path: "/studentlist" },
   { name: "ExpenseList",  path: "/expenselist" },
+  { name: "Notifications",  path: "/notification" },
+  { name: "PlacedStudents",  path: "/placedstudents" },
 ];
 
 function AdminSidebar({onPageChange }) {

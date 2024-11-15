@@ -28,6 +28,9 @@ import JobPost from "./Components/AdminDashboard/JobPost/JobPost";
 import SPCLayout from "./Components/SPC/SPCLayout";
 import StudentList from "./Components/AdminDashboard/StudentList/StudentList";
 import ExpenseList from "./Components/AdminDashboard/ExpenseList/ExpenseList";
+import AddNotifications from "./Components/AdminDashboard/AddNotification/AddNotifications";
+import PlacedStudents from "./Components/AdminDashboard/PlacedStudent/PlacedStduent";
+
 import { selectUser } from "./Pages/auth";
 import { useSelector } from "react-redux";
 
@@ -46,6 +49,8 @@ function App() {
             <Route path="" element={<JobPost />} />
             <Route path="studentlist" element={<StudentList />} />
             <Route path="expenselist" element={<ExpenseList />} />
+            <Route path="notification" element={<AddNotifications />} />
+            <Route path="placedstudents" element={<PlacedStudents />} />
           </Route>
         ) : user.role === "Student" ? (
           // Routes accessible to student role
@@ -66,13 +71,10 @@ function App() {
             </Route>
           </Route>
         ) : user.role === "SPC" ? (
-          // Routes accessible to SPC role
-          <Route path="/spc" element={<SPCLayout />} />
+          <Route path="/" element={<SPCLayout />} />
         ) : (
-          // Redirect to login if the role is not recognized
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}
-        {/* Common routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </>

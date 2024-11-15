@@ -9,20 +9,20 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get Redux states
+
   const loggedInUser = useSelector(selectUser);
   const loginError = useSelector(userError);
   const loginMessage = useSelector(userMessage);
 
   const onSubmit = (data) => {
-    dispatch(checkUser(data));  // Dispatch login action with user input
+    dispatch(checkUser(data)); 
   };
 
-  // Navigate to another page (e.g., dashboard) if login was successful
+
   useEffect(() => {
     if (loginMessage === "Login successful") {
       console.log(loggedInUser);
-      navigate("/");  // Replace with your redirect path
+      navigate("/");  
     }
   }, [loginMessage, navigate]);
 

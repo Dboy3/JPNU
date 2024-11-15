@@ -15,7 +15,6 @@ function JobCard({ job }) {
             {job.role}
           </h3>
           <p className="text-gray-700">{job.companyName}</p>
-          {/* <p className="text-gray-500">{job.location.join(", ")}</p> */}
 
           {/* Conditionally render internship or full-time details */}
           {job.internship && job.internship.name && (

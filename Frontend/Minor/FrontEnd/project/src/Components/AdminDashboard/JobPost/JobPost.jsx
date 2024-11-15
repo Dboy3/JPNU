@@ -110,6 +110,7 @@ const JobPost = () => {
     if (currentJob) {
       setJobs(jobs.map((job) => (job.id === currentJob.id ? newJob : job)));
     } else {
+      console.log(newJob);
       setJobs([...jobs, newJob]);
     }
 
@@ -182,190 +183,6 @@ const JobPost = () => {
           ))}
         </div>
       )}
-
-      {/* {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-            <h2 className="text-2xl mb-4">
-              {currentJob ? "Edit Job Posting" : "Add New Job Posting"}
-            </h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Job Drive Name
-                </label>
-                <input
-                  {...register("jobDriveName", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.jobDriveName && (
-                  <p className="text-red-500 text-sm">Job Drive Name is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Company Name
-                </label>
-                <input
-                  {...register("companyName", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.companyName && (
-                  <p className="text-red-500 text-sm">Company Name is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Roles</label>
-                <input
-                  {...register("roles", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Separate roles with commas"
-                />
-                {errors.roles && (
-                  <p className="text-red-500 text-sm">Roles are required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">CTC</label>
-                <input
-                  {...register("ctc", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:3000000"
-                />
-                {errors.ctc && (
-                  <p className="text-red-500 text-sm">CTC is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Stipend</label>
-                <input
-                  {...register("stipend")}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Intern:50000"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Eligible Courses
-                </label>
-                <input
-                  {...register("eligibleCourses", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:B.Tech"
-                />
-                {errors.eligibleCourses && (
-                  <p className="text-red-500 text-sm">Eligible Courses are required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Required CGPA
-                </label>
-                <input
-                  {...register("requiredCgpa", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:8"
-                />
-                {errors.requiredCgpa && (
-                  <p className="text-red-500 text-sm">Required CGPA is necessary</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Backlogs Allowed
-                </label>
-                <input
-                  {...register("requiredBacklogs", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="e.g. Software Engineer:No"
-                />
-                {errors.requiredBacklogs && (
-                  <p className="text-red-500 text-sm">
-                    Specify if backlogs are allowed or not
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Job Location
-                </label>
-                <input
-                  {...register("location", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Separate locations with commas"
-                />
-                {errors.location && (
-                  <p className="text-red-500 text-sm">Location is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Required Skills
-                </label>
-                <input
-                  {...register("requiredSkills", { required: true })}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Separate skills with commas"
-                />
-                {errors.requiredSkills && (
-                  <p className="text-red-500 text-sm">Required Skills are needed</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Number of Positions
-                </label>
-                <input
-                  {...register("numberOfPositions", { required: true })}
-                  type="number"
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.numberOfPositions && (
-                  <p className="text-red-500 text-sm">
-                    Number of positions is required
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Other Details
-                </label>
-                <textarea
-                  {...register("otherDetails")}
-                  className="border px-4 py-2 rounded w-full"
-                ></textarea>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  {currentJob ? "Update Job" : "Add Job"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )} */}
 
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -569,7 +386,6 @@ const JobPost = () => {
                   <p className="text-red-500 text-sm">End date is required</p>
                 )}
               </div>
-
 
               <div className="flex justify-end space-x-2">
                 <button

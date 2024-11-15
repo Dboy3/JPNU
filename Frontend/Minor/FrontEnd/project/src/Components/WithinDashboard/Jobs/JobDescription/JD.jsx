@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 
 const JD = () => {
   const job = {
@@ -9,28 +10,46 @@ const JD = () => {
     internship: {
       name: "internship",
       duration: "6 months",
-      stipend: 20000
+      stipend: 20000,
     },
     fulltime: {
       name: "fulltime",
-      ctc: 300000
+      ctc: 300000,
     },
-    locations: ["Ahmedabad","Banglore"],
+    locations: ["Ahmedabad", "Banglore"],
     NumberOfPositions: 1,
     requiredSkills: ["React", "JavaScript", "CSS"],
     eligibleBranch: ["Mechanical", "Civil"],
     BacklogsAllowed: "Yes",
     StartDate: "2024-03-01",
     EndDate: "2024-03-31",
-    OtherDetails: "2 rounds of interviews and a coding assessment"
+    OtherDetails: "2 rounds of interviews and a coding assessment",
   };
 
   const { id } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
 
   const handleClick = (e) => {
-    console.log(id);
+    console.log(e);
+    setIsModalOpen(true);
     // dispatch(applyForJob({ studentId, jobId }));
     // dispatch(push it in application)
+  };
+
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  const handleFormSubmit = () => {
+    // here we need to dispatch the APIs 
+    if (isChecked) {
+      setIsApplied(true);
+      setIsModalOpen(false);
+    } else {
+      alert("Please check the agreement before submitting.");
+    }
   };
 
   return (
@@ -127,7 +146,44 @@ const JD = () => {
         >
           Apply Now
         </button>
+        {isApplied && (
+          <p className="text-green-500 mt-4">You have applied for this job successfully!</p>
+        )}
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Apply for {job.title}
+            </h2>
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className="mr-2"
+              />
+              <label className="text-gray-600">
+                I am aware that the details entered by me are valid
+              </label>
+            </div>
+            <button
+              onClick={handleFormSubmit}
+              className="bg-primary-dark text-white px-4 py-2 rounded hover:bg-primary-darker w-full"
+            >
+              Submit Application
+            </button>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="mt-4 text-gray-600 underline"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { createJobPosting, getJobPostings, deleteJobPosting, updateJobPosting,ad
     deletePlacedStudent,
     updatePlacedStudent,
     getAllJobPostings, 
+    getJobById,
     getUpcomingJobPostings, 
     getPastJobPostings,getApplications,addApplication} from '../controller/Jobs.controller.js';
     import {

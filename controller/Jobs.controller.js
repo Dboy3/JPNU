@@ -129,10 +129,10 @@ export const getJobById = async (req, res) => {
     if (!jobPosting) {
       return res
         .status(404)
-        .json({ message: "Job posting not found", job: jobPosting });
+        .json({ message: "Job posting not found"});
     }
 
-    res.status(200).json({ jobPosting });
+    res.status(200).json({ job : jobPosting });
   } catch (error) {
     console.error(error);
     if (error.kind === "ObjectId") {

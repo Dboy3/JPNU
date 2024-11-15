@@ -1,37 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getJobById,
+  getSingleJob,
+} from "../../../AdminDashboard/JobPost/jobPostSlice";
 
 const JD = () => {
-  const job = {
-    id: 1,
-    companyName: "TechCorp Ltd.",
-    roles: ["Software Engineer", "Frontend Developer"],
-    employmentType: {
-      fullTime: true,
-      internship: false,
-    },
-    ctc: 8000000,
-    stipend: null,
-    eligibleCourses: ["B.Tech in Computer Science", "B.Tech in IT"],
-    requiredCgpa: 7.5,
-    location: ["New York, USA", "Remote"],
-    otherDetails: "We are looking for passionate software engineers to join our team.",
-    registrationStartDate: "2024-11-01",
-    registrationEndDate: "2024-12-01",
-    urlLink: "https://www.techcorp.com/careers",
-  };
-
   const { id } = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getJobById(id));
+  }, [dispatch, id]);
+
+  const job = useSelector(getSingleJob);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
 
-  const handleClick = (e) => {
-    console.log(e);
+  const handleClick = () => {
     setIsModalOpen(true);
-    // dispatch(applyForJob({ studentId, jobId }));
-    // dispatch(push it in application)
   };
 
   const handleCheckboxChange = () => {
@@ -39,30 +29,37 @@ const JD = () => {
   };
 
   const handleFormSubmit = () => {
-    // here we need to dispatch the APIs 
     if (isChecked) {
       setIsApplied(true);
       setIsModalOpen(false);
+      
+      console.log("hurrah");
     } else {
       alert("Please check the agreement before submitting.");
     }
   };
+
+  if (!job) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-6 bg-gray-50">
       {/* Header */}
       <div className="flex justify-between items-center border-b pb-4 border-gray-200">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">{job.roles.join(", ")}</h1>
+          <h1 className="text-xl font-bold text-gray-800">
+            {job.roles.join(", ")}
+          </h1>
           <p className="text-sm text-gray-600">{job.companyName}</p>
         </div>
         <div className="flex space-x-2 items-center">
-          {job.employmentType.fullTime && (
+          {job.employmentType?.fullTime && (
             <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
               Full-Time
             </span>
           )}
-          {job.employmentType.internship && (
+          {job.employmentType?.internship && (
             <span className="text-sm bg-green-200 text-green-800 px-2 py-1 rounded-full">
               Internship
             </span>
@@ -82,12 +79,14 @@ const JD = () => {
         </div>
         <div>
           <h2 className="font-bold text-gray-800">Registration Period</h2>
-          <p className="text-gray-600">{job.registrationStartDate} to {job.registrationEndDate}</p>
+          <p className="text-gray-600">
+            {job.registrationStartDate} to {job.registrationEndDate}
+          </p>
         </div>
       </div>
 
       {/* Full-Time Details */}
-      {job.employmentType.fullTime && (
+      {job.employmentType?.fullTime && (
         <div className="my-4">
           <h2 className="font-bold text-gray-800">Full-Time Details</h2>
           <p className="text-gray-600">CTC: INR {job.ctc}</p>
@@ -117,7 +116,9 @@ const JD = () => {
           Apply Now
         </button>
         {isApplied && (
-          <p className="text-green-500 mt-4">You have applied for this job successfully!</p>
+          <p className="text-green-500 mt-4">
+            You have applied for this job successfully!
+          </p>
         )}
       </div>
 

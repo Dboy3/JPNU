@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 
 // pass the job-ids
 function JobCard({ job }) {
-  console.log(job);
   return (
     <NavLink
       className="space-x-4 border bg-white shadow-lg p-4 rounded-lg flex items-center"

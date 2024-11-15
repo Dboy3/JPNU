@@ -1,83 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
+import {
+  fetchJobPosts,
+  addJobPost,
+  updateJobPost,
+  deleteJobPost,
+} from "./jobPostSlice"; // Assuming the slice is named jobSlice
+import { getJobs } from "./jobPostSlice";
 
 const JobPost = () => {
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      companyName: "TechCorp Ltd.",
-      roles: ["Software Engineer", "Frontend Developer"],
-      employmentType: {
-        fullTime: true,
-        internship: false,
-      },
-      ctc: 8000000,
-      stipend: null,
-      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in IT"],
-      requiredCgpa: 7.5,
-      location: ["New York, USA", "Remote"],
-      otherDetails: "We are looking for passionate software engineers to join our team.",
-      registrationStartDate: "2024-11-01",
-      registrationEndDate: "2024-12-01",
-      urlLink: "https://www.techcorp.com/careers",
-    },
-    {
-      id: 2,
-      companyName: "Innovate Inc.",
-      roles: ["Data Scientist", "AI Researcher"],
-      employmentType: {
-        fullTime: true,
-        internship: false,
-      },
-      ctc: 12000000,
-      stipend: null,
-      eligibleCourses: ["B.Tech in Computer Science", "M.Sc in Data Science"],
-      requiredCgpa: 8.0,
-      location: ["San Francisco, USA"],
-      otherDetails: "Innovate Inc. is looking for top-tier data scientists to join our growing AI team.",
-      registrationStartDate: "2024-11-10",
-      registrationEndDate: "2024-12-15",
-      urlLink: "https://www.innovate.com/careers",
-    },
-    {
-      id: 3,
-      companyName: "EduStart",
-      roles: ["Internship - Backend Developer"],
-      employmentType: {
-        fullTime: false,
-        internship: true,
-      },
-      ctc: null,
-      stipend: 30000,
-      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in Information Technology"],
-      requiredCgpa: 7.0,
-      location: ["London, UK", "Remote"],
-      otherDetails: "EduStart is offering a paid internship opportunity for aspiring backend developers.",
-      registrationStartDate: "2024-11-20",
-      registrationEndDate: "2024-12-20",
-      urlLink: null,
-    },
-    {
-      id: 4,
-      companyName: "CloudSoft Solutions",
-      roles: ["Cloud Engineer", "DevOps Specialist"],
-      employmentType: {
-        fullTime: true,
-        internship: false,
-      },
-      ctc: 9000000,
-      stipend: null,
-      eligibleCourses: ["B.Tech in Computer Science", "B.Tech in Cloud Computing"],
-      requiredCgpa: 7.5,
-      location: ["Toronto, Canada"],
-      otherDetails: "Join CloudSoft Solutions and build cutting-edge cloud infrastructure solutions.",
-      registrationStartDate: "2024-11-05",
-      registrationEndDate: "2024-12-05",
-      urlLink: "https://www.cloudsoft.com/careers",
-    },
-  ]);
-  
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.status);
+  const error = useSelector((state) => state.error);
+
   const [showCtc, setShowCtc] = useState(false);
   const [showStipend, setShowStipend] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -89,6 +26,13 @@ const JobPost = () => {
     reset,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    dispatch(fetchJobPosts());
+  }, [dispatch]);
+
+  const jobs = useSelector(getJobs);
+  console.log("jobs from console : ", jobs);
 
   const handleEmploymentTypeChange = (e) => {
     const { name, checked } = e.target;
@@ -103,8 +47,11 @@ const JobPost = () => {
   };
 
   const handleEditJob = (job) => {
+    console.log("edit button is called");
+    console.log("job is ", job);
     setCurrentJob(job);
     reset({
+      _id : job._id,
       companyName: job.companyName,
       roles: job.roles.join(", "),
       employmentType: job.employmentType,
@@ -116,7 +63,7 @@ const JobPost = () => {
       otherDetails: job.otherDetails,
       registrationStartDate: job.registrationStartDate,
       registrationEndDate: job.registrationEndDate,
-      urlLink: job.urlLink || "", // New field for URL link
+      urlLink: job.urlLink || "",
     });
     setShowForm(true);
     setShowCtc(job.employmentType.fullTime);
@@ -124,8 +71,10 @@ const JobPost = () => {
   };
 
   const handleDeleteJob = (id) => {
-    setJobs(jobs.filter((job) => job.id !== id));
+    console.log("delete button is called");
+    dispatch(deleteJobPost(id));
   };
+
   const onSubmit = (data) => {
     const newJob = {
       id: currentJob ? currentJob.id : Date.now(),
@@ -147,14 +96,14 @@ const JobPost = () => {
       otherDetails: data.otherDetails,
       registrationStartDate: data.registrationStartDate,
       registrationEndDate: data.registrationEndDate,
-      urlLink: data.urlLink || null, // Handle optional URL field
+      urlLink: data.urlLink || null,
     };
 
     if (currentJob) {
-      setJobs(jobs.map((job) => (job.id === currentJob.id ? newJob : job)));
+      console.log("new job", newJob);
+      dispatch(updateJobPost(newJob));
     } else {
-      console.log(newJob);
-      setJobs([...jobs, newJob]);
+      dispatch(addJobPost(newJob));
     }
 
     setShowForm(false);
@@ -172,13 +121,11 @@ const JobPost = () => {
         </button>
       </div>
 
-      {jobs.length === 0 ? (
-        <p>No job postings available. Add one using the button above.</p>
-      ) : (
+      {jobs && (
         <div className="grid gap-8">
           {jobs.map((job) => (
             <div
-              key={job.id}
+              key={job._id}
               className="p-6 border rounded-lg shadow-md bg-white"
             >
               <div className="flex justify-between">
@@ -193,10 +140,10 @@ const JobPost = () => {
                   <p>
                     <strong>Stipend:</strong> {job.stipend || "Not Applicable"}
                   </p>
-                  <p>
+                  {/* <p>
                     <strong>Eligible Courses:</strong>{" "}
                     {job.eligibleCourses.join(", ")}
-                  </p>
+                  </p> */}
                   <p className="text-gray-500">{job.location.join(", ")}</p>
                   <p className="mt-4">{job.otherDetails}</p>
                   {job.urlLink && (

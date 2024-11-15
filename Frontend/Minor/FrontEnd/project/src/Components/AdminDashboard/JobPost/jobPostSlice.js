@@ -2,11 +2,15 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Async Thunk to fetch job posts
 export const fetchJobPosts = createAsyncThunk('jobs/fetchJobPosts', async () => {
+  console.log("fetch method is called from slice");
   const response = await fetch('http://localhost:8000/api/jobs/get');
   if (!response.ok) {
     throw new Error('Failed to fetch job posts');
   }
-  return response.json();
+
+  const data = await response.json() ; 
+  // console.log(data.jobPostings , "printing in slice ");
+  return data.jobPostings;
 });
 
 // Async Thunk to add a new job post
@@ -22,11 +26,14 @@ export const addJobPost = createAsyncThunk('jobs/addJobPost', async (newJob) => 
   if (!response.ok) {
     throw new Error('Failed to add job post');
   }
-  return response.json();
+  const data = await response.json() ; 
+  console.log(data , "add fuction");
+  return data;
 });
 
 // Async Thunk to update a job post
 export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updatedJob) => {
+  console.log("from the update slice" , updateJob);
   const response = await fetch(`http://localhost:8000/api/jobs/${updatedJob.id}`, {
     method: 'PUT',
     headers: {
@@ -38,7 +45,9 @@ export const updateJobPost = createAsyncThunk('jobs/updateJobPost', async (updat
   if (!response.ok) {
     throw new Error('Failed to update job post');
   }
-  return response.json();
+  const data = await response.json() ; 
+  console.log(data , "update fuction");
+  return data;
 });
 
 // Async Thunk to delete a job post
@@ -70,13 +79,14 @@ const jobPostSlice = createSlice({
       .addCase(fetchJobPosts.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.jobs = action.payload;
+        console.log(state.jobs , "from addcase");
       })
       .addCase(fetchJobPosts.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
       .addCase(addJobPost.fulfilled, (state, action) => {
-        state.jobs.push(action.payload);
+        state.jobs.push(action.payload.newJobPosting);
       })
       .addCase(updateJobPost.fulfilled, (state, action) => {
         const index = state.jobs.findIndex(job => job.id === action.payload.id);
@@ -91,3 +101,4 @@ const jobPostSlice = createSlice({
 });
 
 export default jobPostSlice.reducer;
+export const getJobs = (state) => state.jobposts.jobs;

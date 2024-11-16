@@ -149,6 +149,70 @@ export const getJobPostings = async (req, res) => {
   }
 };
 
+export const getStudentsByPostId = async (req, res) => {
+  const { postId } = req.body;
+  console.log(postId);
+  if (!postId) {
+    return res.status(400).json({ message: 'Post ID is required' });
+  }
+  try {
+    // Find students where the postId matches
+    const apps = await Application.find({ postId })
+    console.log(apps);
+
+    const appsWithUserDetails = await Promise.all(
+      apps.map(async (app) => {
+        const userId=app.userId;
+        const user = await User.findOne({userId},{password:0,userId:0,appliedJobs:0}); // Adjust fields as needed
+        console.log(user);
+        return user;
+      })
+    );
+    if (!apps.length) {
+      return res.status(404).json({ message: 'No students found for this post' });
+    }
+
+    return res.status(200).json(appsWithUserDetails);
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+export const getAllStudents = async (req, res) => {
+  
+  try {
+    const students = await User.find({ role:"Student" })
+    console.log(students);
+    if (!students.length) {
+      return res.status(404).json({ message: 'No students found for this post' });
+    }
+
+    return res.status(200).json(students);
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const holdUnhold =async(req,res)=>{
+  try{
+    const {userId}=req.body;
+    console.log(userId);
+    const user = await User.findOneAndUpdate(
+      { userId },
+      [{ $set: { hold: { $not: "$hold" } } }], // Use aggregation pipeline to toggle boolean
+      { new: true } // Return the updated document
+    );
+
+    res.status(200).json({message:"Done"});
+  }
+catch(err){
+console.log(err);
+res.status(500).json({ message: "Error holding student", err });
+}
+};
+
+
 export const getJobById = async (req, res) => {
   try {
     const { id } = req.params;

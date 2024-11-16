@@ -1,198 +1,94 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addAcademicDetails, resetState } from "./academicDetailsSlice";
+import React, { useEffect, useState } from "react";
+import StudentItem from "./StudentItem"; // Import the new StudentItem component
 
-const theme = {
-  primary: {
-    light: "hsla(240, 100%, 60%, .45)",
-    lighter: "hsla(240, 100%, 70%, .45)",
-    lightest: "hsla(240, 100%, 80%, .45)",
-    DEFAULT: "hsla(240, 100%, 50%, .45)",
-    dark: "hsla(240, 100%, 40%, .45)",
-    darker: "hsla(240, 100%, 30%, .45)",
-    darkest: "hsla(240, 100%, 20%, .45)",
-  },
-};
+const AddDetails = () => {
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-const AcademicDetailsForm = () => {
-  const dispatch = useDispatch();
-  const { loading, success, error } = useSelector(
-    (state) => state.academicDetails
-  );
+  useEffect(() => {
+    const fetchStudents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("http://localhost:8000/api/jobs/getstudents");
+        if (!response.ok) {
+          throw new Error("Failed to fetch students");
+        }
+        const data = await response.json();
+        setStudents(data);
+        setFilteredStudents(data); // Initially show all students
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const [formData, setFormData] = useState({
-    rollNo: "",
-    email: "",
-    isDiplomaToDegree: false,
-    semester1: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester2: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester3: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester4: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester5: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester6: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester7: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    semester8: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-  });
+    fetchStudents();
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value, checked, type } = e.target;
-
-    if (name.includes("semester")) {
-      const [semester, field] = name.split(".");
-      setFormData({
-        ...formData,
-        [semester]: { ...formData[semester], [field]: value },
-      });
+  useEffect(() => {
+    // Filter students based on the email search query
+    if (searchQuery === "") {
+      setFilteredStudents(students); // If no search query, show all students
     } else {
-      setFormData({
-        ...formData,
-        [name]: type === "checkbox" ? checked : value,
-      });
+      setFilteredStudents(
+        students.filter((student) =>
+          student.email && student.email.toLowerCase().includes(searchQuery.toLowerCase()) // Ensure email is not undefined
+        )
+      );
     }
-  };
+  }, [searchQuery, students]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(addAcademicDetails(formData));
-  };
-
-  const handleReset = () => {
-    dispatch(resetState());
-    setFormData({
-      rollNo: "",
-      email: "",
-      isDiplomaToDegree: false,
-      semester1: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester2: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester3: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester4: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester5: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester6: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester7: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-      semester8: { cgpa: "", liveBacklogs: "", closedBacklogs: "" },
-    });
+  const updateStudentStatus = (userId, newStatus) => {
+    setStudents((prevStudents) =>
+      prevStudents.map((student) =>
+        student.userId === userId ? { ...student, isHeld: newStatus } : student
+      )
+    );
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-primary-lightest p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl"
-      >
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl">
         <h2 className="text-2xl font-semibold text-primary-dark text-center mb-6">
-          Academic Details
+          Students List
         </h2>
+
         <div className="mb-4">
-          <label className="block text-primary-dark text-sm font-medium mb-2">
-            Roll No:
-          </label>
           <input
             type="text"
-            name="rollNo"
-            value={formData.rollNo}
-            onChange={handleChange}
-            className="w-full p-3 border border-primary-lighter rounded-md text-sm"
-            required
+            className="p-2 w-full border border-primary-lighter rounded-md"
+            placeholder="Search by email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-primary-dark text-sm font-medium mb-2">
-            Email:
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-3 border border-primary-lighter rounded-md text-sm"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="inline-flex items-center text-primary-dark text-sm">
-            <input
-              type="checkbox"
-              name="isDiplomaToDegree"
-              checked={formData.isDiplomaToDegree}
-              onChange={handleChange}
-              className="form-checkbox"
-            />
-            <span className="ml-2">Is Diploma to Degree</span>
-          </label>
-        </div>
 
-        {Object.keys(formData)
-          .filter((key) => key.includes("semester"))
-          .map((semesterKey) => (
-            <fieldset
-              key={semesterKey}
-              className="border border-primary-lighter p-4 mb-6 rounded-md"
-            >
-              <legend className="font-semibold text-primary-dark mb-2">
-                {semesterKey}
-              </legend>
-              <div className="mb-4">
-                <label className="block text-primary-dark text-sm font-medium mb-2">
-                  CGPA:
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name={`${semesterKey}.cgpa`}
-                  value={formData[semesterKey].cgpa}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-primary-lighter rounded-md text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-primary-dark text-sm font-medium mb-2">
-                  Live Backlogs:
-                </label>
-                <input
-                  type="number"
-                  name={`${semesterKey}.liveBacklogs`}
-                  value={formData[semesterKey].liveBacklogs}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-primary-lighter rounded-md text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-primary-dark text-sm font-medium mb-2">
-                  Closed Backlogs:
-                </label>
-                <input
-                  type="number"
-                  name={`${semesterKey}.closedBacklogs`}
-                  value={formData[semesterKey].closedBacklogs}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-primary-lighter rounded-md text-sm"
-                />
-              </div>
-            </fieldset>
-          ))}
+        {loading && <p className="text-center text-primary-dark">Loading...</p>}
+        {error && <p className="text-center text-red-600">{error}</p>}
 
-        <div className="flex justify-between mt-6">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-primary-dark text-white p-3 rounded-md w-1/2 mr-2 hover:bg-primary-darker disabled:bg-gray-400"
-          >
-            {loading ? "Submitting..." : "Submit"}
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="bg-primary-light text-primary-dark p-3 rounded-md w-1/2 ml-2 hover:bg-primary-lighter"
-          >
-            Reset
-          </button>
-        </div>
-      </form>
+        {!loading && !error && filteredStudents.length === 0 && (
+          <p className="text-center text-primary-dark">No students found.</p>
+        )}
 
-      {success && <p className="text-green-600 text-center mt-4">{success}</p>}
-      {error && <p className="text-red-600 text-center mt-4">{error}</p>}
+        {!loading && !error && filteredStudents.length > 0 && (
+          <ul className="space-y-4">
+            {filteredStudents.map((student) => (
+              <StudentItem
+                key={student._id}
+                student={student}
+                updateStudentStatus={updateStudentStatus} // Pass the function as a prop
+              />
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
 
-export default AcademicDetailsForm;
+export default AddDetails;

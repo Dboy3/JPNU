@@ -5,14 +5,16 @@ import { createJobPosting, getJobPostings, deleteJobPosting, updateJobPosting,ad
     updatePlacedStudent,
     getAllJobPostings, 
     getAdminJobPostings,
+    getStudentsByPostId,
     getJobById,
     getUpcomingJobPostings, 
-    getPastJobPostings,getApplications,addApplication} from '../controller/Jobs.controller.js';
+    getPastJobPostings,getApplications,addApplication, getAllStudents, holdUnhold} from '../controller/Jobs.controller.js';
     import {
         addExpenditure,
         updateExpenditure,
         getAllExpenditures,
-        getFilteredExpenditures
+        getFilteredExpenditures,
+       
     } from '../controller/expenditureBook.controller.js';
 import { verifyAdminRole } from '../controller/Jobs.controller.js';
 import { verifyRole,authenticateUser } from '../middleware/authMiddleware.js';
@@ -22,11 +24,13 @@ const router = express.Router();
 // Route to create a new job posting (Admin only)
 // POST /api/job-postings
 router.post('/post', verifyAdminRole, createJobPosting);
-
+router.get('/getstudents',getAllStudents);
 // Route to get all job postings
 // GET /api/job-postings
 router.get('/get', getAdminJobPostings);
+router.post('/holdUnhold', holdUnhold);
 router.post('/getposts', getJobPostings);
+router.post('/getstudentbypostid' , getStudentsByPostId) ; 
 router.get('/get/:id',getJobById) ; 
 
 // Route to delete a job posting (Admin only)

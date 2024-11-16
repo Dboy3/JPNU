@@ -27,7 +27,11 @@ export const applyForJob = createAsyncThunk(
         throw new Error("Failed to apply for the job");
       }
 
-      const data = await response.json(); // The returned job object from the backend
+      const data = await response.json();
+      // const sortedJobPostings = data.jobPostings.sort((a, b) => {
+      //   return new Date(a.createdAt) - new Date(b.createdAt);
+      // });
+
       return data; // This will be the payload for the fulfilled action
     } catch (error) {
       return rejectWithValue(error.message); // Handle errors and pass them to the rejected action
@@ -72,6 +76,9 @@ const jobApplicationSlice = createSlice({
       .addCase(applyForJob.fulfilled, (state, action) => {
         state.loading = false;
         state.applicationList.push(action.payload.job);
+        // state.applicationList.sort(
+        //   (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        // );
       })
       .addCase(applyForJob.rejected, (state, action) => {
         state.loading = false;
@@ -79,7 +86,10 @@ const jobApplicationSlice = createSlice({
       })
       .addCase(getApplicationsByUserId.fulfilled, (state, action) => {
         state.applicationList = action.payload;
-        state.error = action.payload;
+        // state.applicationList = action.payload.sort(
+        //   (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        // );
+        state.error = null;
       });
   },
 });

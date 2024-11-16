@@ -8,7 +8,7 @@ import expenseReducer from "../Components/SPC/expenseSlice";
 import notificationReducer from "../Components/AdminDashboard/AddNotification/notificationSlice"
 import jobApplicationReducer from "../Components/WithinDashboard/Jobs/JobCategories/jobApplicationSlice" 
 import placedStudentsReducer from "../Components/AdminDashboard/History/placedStudentsSlice"
-import academicDetailsReducer from "../Components/AdminDashboard/AddDetails/academicDetailsSlice"
+
 import jobReducer from "../Components/WithinDashboard/Jobs/jobSlice"
 
 const store = configureStore({
@@ -22,7 +22,7 @@ const store = configureStore({
     notifications : notificationReducer,
     jobApplication : jobApplicationReducer,
     placedStudents : placedStudentsReducer,
-    academicDetails: academicDetailsReducer,
+
     jobs : jobReducer
   },
 });

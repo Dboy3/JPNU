@@ -7,7 +7,6 @@ import {
 } from "../../../AdminDashboard/JobPost/jobPostSlice";
 import { selectUser } from "../../../../Pages/auth";
 import { applyForJob } from "../jobSlice";
-// import { applyForJob } from "../JobCategories/jobApplicationSlice";
 
 const JD = () => {
   const { id } = useParams();
@@ -23,6 +22,7 @@ const JD = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
+  const ishold = user.hold;
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -36,10 +36,8 @@ const JD = () => {
     if (isChecked) {
       setIsApplied(true);
       setIsModalOpen(false);
-      const data = { userId : user.userId , postId : job.postId } ; 
-      console.log("dispatch the applcation");
-      // dispatch(applyForJob(data)) ; 
-      dispatch(applyForJob(data))      
+      const data = { userId: user.userId, postId: job.postId };
+      dispatch(applyForJob(data));
     } else {
       alert("Please check the agreement before submitting.");
     }
@@ -86,7 +84,8 @@ const JD = () => {
         <div>
           <h2 className="font-bold text-gray-800">Registration Period</h2>
           <p className="text-gray-600">
-            {job.registrationStartDate.split("T")[0]} to {job.registrationEndDate.split("T")[0]}
+            {job.registrationStartDate.split("T")[0]} to{" "}
+            {job.registrationEndDate.split("T")[0]}
           </p>
         </div>
       </div>
@@ -113,11 +112,21 @@ const JD = () => {
         </div>
       )}
 
+      {/* Alert if Account is on Hold */}
+      {ishold && (
+        <div className="bg-red-100 text-red-800 p-4 rounded mb-6">
+          <p>
+            Your account has been put on hold. Please contact the administrator.
+          </p>
+        </div>
+      )}
+
       {/* Apply Button */}
       <div className="my-6">
         <button
           className="bg-primary-dark text-white px-4 py-2 rounded hover:bg-primary-darker"
           onClick={handleClick}
+          disabled={ishold}
         >
           Apply Now
         </button>

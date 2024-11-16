@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import StudentItem from "./StudentItem"; // Import the new StudentItem component
+import StudentItem from "./StudentItem"; 
 
 const AddDetails = () => {
   const [students, setStudents] = useState([]);
@@ -19,7 +19,7 @@ const AddDetails = () => {
         }
         const data = await response.json();
         setStudents(data);
-        setFilteredStudents(data); // Initially show all students
+        setFilteredStudents(data); 
       } catch (err) {
         setError(err.message);
       } finally {
@@ -75,6 +75,7 @@ const AddDetails = () => {
           <p className="text-center text-primary-dark">No students found.</p>
         )}
 
+        {console.log(filteredStudents)}
         {!loading && !error && filteredStudents.length > 0 && (
           <ul className="space-y-4">
             {filteredStudents.map((student) => (

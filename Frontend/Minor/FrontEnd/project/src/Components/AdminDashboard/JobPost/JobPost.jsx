@@ -249,7 +249,6 @@ const JobPost = () => {
               </div>
 
               {/* CTC */}
-
               {showCtc && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">CTC</label>
@@ -271,8 +270,7 @@ const JobPost = () => {
                 </div>
               )}
 
-              {/* Stipend */}
-              {/* Stipend */}
+
               {showStipend && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">

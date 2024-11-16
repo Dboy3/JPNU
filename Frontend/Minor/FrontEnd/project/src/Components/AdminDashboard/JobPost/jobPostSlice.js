@@ -17,29 +17,58 @@ export const fetchJobPosts = createAsyncThunk(
 );
 
 // Async Thunk to add a new job post
+// export const addJobPost = createAsyncThunk(
+//   "jobs/addJobPost",
+//   async (newJob) => {
+//     const response = await fetch("http://localhost:8000/api/jobs/post", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       credentials: "include",
+//       body: JSON.stringify(newJob),
+//     });
+//     console.log(response);
+//     if (!response.ok) {
+//       throw new Error("Failed to add job post");
+//     }
+//     const data = await response.json();
+//     console.log(data, "add fuction");
+//     return data;
+//   }
+// );
+
 export const addJobPost = createAsyncThunk(
   "jobs/addJobPost",
-  async (newJob) => {
-    const response = await fetch("http://localhost:8000/api/jobs/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(newJob),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to add job post");
+  async (newJob, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/jobs/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(newJob),
+      });
+
+      if (!response.ok) {
+        // Parse the response for error details
+        const errorData = await response.json();
+        alert("the company already posted");
+      }
+
+      const data = await response.json();
+      console.log(data, "add function");
+      return data;
+    } catch (error) {
+      // Catch any network errors or unexpected issues
+      return rejectWithValue(error.message || "Something went wrong.");
     }
-    const data = await response.json();
-    console.log(data, "add fuction");
-    return data;
   }
 );
 
 export const getJobById = createAsyncThunk("jobs/getJobById", async (id) => {
-
-  console.log("calling the job  " , id );
+  console.log("calling the job  ", id);
   const response = await fetch(`http://localhost:8000/api/jobs/get/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch job posts");
@@ -109,10 +138,23 @@ const jobPostSlice = createSlice({
       })
       .addCase(fetchJobPosts.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload;
+      })
+      // .addCase(addJobPost.fulfilled, (state, action) => {
+      //   state.jobs.push(action.payload.newJobPosting);
+      // })
+      .addCase(addJobPost.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
       })
       .addCase(addJobPost.fulfilled, (state, action) => {
-        state.jobs.push(action.payload.newJobPosting);
+        state.status = "succeeded";
+        // Handle successful job addition here
+      })
+      .addCase(addJobPost.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload; // Display the warning or error message
+        console.log(state.error);
       })
       .addCase(updateJobPost.fulfilled, (state, action) => {
         const index = state.jobs.findIndex(

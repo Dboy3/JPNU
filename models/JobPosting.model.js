@@ -8,6 +8,7 @@ const jobPostingSchema = new mongoose.Schema({
     companyName: {
         type: String,
         required: true,
+        
     },
     roles: {
         type: [String],

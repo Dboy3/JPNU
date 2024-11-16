@@ -1,8 +1,7 @@
-// StudentItem.js
 import React, { useState } from "react";
 
 const StudentItem = ({ student, updateStudentStatus }) => {
-  const [isHeld, setIsHeld] = useState(student.isHeld);
+  const [isHeld, setIsHeld] = useState(student.hold); // Initialize with value from props
 
   const handleHoldUnhold = async () => {
     try {
@@ -19,9 +18,10 @@ const StudentItem = ({ student, updateStudentStatus }) => {
         throw new Error("Failed to update student status");
       }
 
-      // Toggle the state of 'isHeld' locally and inform the parent
-      setIsHeld((prevIsHeld) => !prevIsHeld);
-      updateStudentStatus(student.userId, !isHeld); // Update parent state
+      // Get the new status from the server (if API returns it)
+      const updatedStatus = !isHeld; // Toggle the current status
+      setIsHeld(updatedStatus); // Update local state
+      updateStudentStatus(student.userId, updatedStatus); // Update parent state
     } catch (err) {
       console.error(err.message);
       alert("Failed to update student status. Please try again.");

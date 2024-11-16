@@ -35,7 +35,10 @@ function StudentList() {
   const handleShowData = async () => {
     if (selectedCompany) {
       try {
-        const response = await axios.post("http://localhost:8000/api/jobs/getstudentbypostid", { postId: selectedCompany });
+        const response = await axios.post(
+          "http://localhost:8000/api/jobs/getstudentbypostid",
+          { postId: selectedCompany }
+        );
         setStudents(response.data || []);
       } catch (error) {
         console.error("Error fetching students:", error);
@@ -49,8 +52,8 @@ function StudentList() {
     let matchesBranch = true;
 
     // Apply CGPA filter
-     // Apply CGPA filter
-     if (cgpaFilter) {
+    // Apply CGPA filter
+    if (cgpaFilter) {
       if (cgpaFilter === "below5" && student.cgpa >= 5) {
         matchesCgpa = false;
       } else if (cgpaFilter === "above5" && student.cgpa <= 5) {
@@ -69,7 +72,9 @@ function StudentList() {
     // Apply Branch filter
     if (branchFilter) {
       // Ensure we compare the branch in a case-sensitive manner
-      matchesBranch = student.branch && student.branch.toUpperCase() === branchFilter.toUpperCase();
+      matchesBranch =
+        student.branch &&
+        student.branch.toUpperCase() === branchFilter.toUpperCase();
     }
 
     return matchesCgpa && matchesBranch;
@@ -77,16 +82,22 @@ function StudentList() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-sm">
-      <h2 className="text-xl font-semibold text-primary-dark mb-4 text-center">Student Applications</h2>
+      <h2 className="text-xl font-semibold text-primary-dark mb-4 text-center">
+        Student Applications
+      </h2>
       <div className="flex items-center space-x-3 mb-4">
         <select
           value={selectedCompany}
           onChange={handleCompanyChange}
           className="border text-primary-dark p-2 rounded focus:outline-none focus:ring focus:ring-primary-light transition-all"
         >
-          <option value="" disabled>Select a Company</option>
+          <option value="" disabled>
+            Select a Company
+          </option>
           {companies.map((company) => (
-            <option key={company.id} value={company.id}>{company.name}</option>
+            <option key={company.id} value={company.id}>
+              {company.name}
+            </option>
           ))}
         </select>
         <button
@@ -99,7 +110,7 @@ function StudentList() {
 
       {/* Filters */}
       <div className="flex space-x-3 mb-4">
-      <select
+        <select
           value={cgpaFilter}
           onChange={(e) => setCgpaFilter(e.target.value)}
           className="border text-primary-dark p-2 rounded focus:outline-none focus:ring focus:ring-primary-light transition-all"
@@ -131,12 +142,24 @@ function StudentList() {
           <table className="min-w-full table-auto">
             <thead>
               <tr>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">First Name</th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">Last Name</th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">Email</th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">Phone Number</th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">Branch</th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">CGPA</th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  First Name
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Last Name
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Email
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Phone Number
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Branch
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  CGPA
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -155,7 +178,8 @@ function StudentList() {
         ) : (
           selectedCompany && (
             <p className="text-primary-darker italic text-center">
-              No students applied for this job or no students match your filters.
+              No students applied for this job or no students match your
+              filters.
             </p>
           )
         )}

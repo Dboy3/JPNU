@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 // pass the job-ids
 function JobCard({ job }) {
+  console.log("from card", job);
   return (
     <NavLink
       className="space-x-4 border bg-white shadow-lg p-4 rounded-lg flex items-center"
@@ -40,7 +41,8 @@ function JobCard({ job }) {
             Required CGPA: {job.requiredCgpa}
           </p>
           <p className="text-gray-500 mt-1">
-            Registration Period: {job.registrationStartDate} to {job.registrationEndDate}
+            Registration Period: {job.registrationStartDate.split("T")[0]} to{" "}
+            {job.registrationEndDate.split("T")[0]}
           </p>
 
           <p className="text-gray-500 mt-2">{job.otherDetails}</p>

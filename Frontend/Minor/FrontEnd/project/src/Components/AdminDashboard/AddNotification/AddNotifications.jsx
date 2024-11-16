@@ -42,7 +42,7 @@ const AddNotifications = () => {
   
   useEffect(() => {
     dispatch(fetchNotifications());
-  }, [dispatch]);
+  }, [dispatch ]);
   
   const onSubmit = (data) => {
     console.log(data);

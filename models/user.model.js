@@ -14,7 +14,14 @@ export const userSchema = new mongoose.Schema({
     },
     RollNo: { type : String },
     userId: { type: String, required: true, unique: true },
-    password: { type: String, required: true, unique: true }
+    password: { type: String, required: true, unique: true },
+    appliedJobs: [
+        {
+            postId: { type: String }
+        }
+    ],
+    cgpa:{type:Number},
+    branch:{type:String},
 });
 
 export default mongoose.model('User', userSchema);

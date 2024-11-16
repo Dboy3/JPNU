@@ -12,61 +12,6 @@ function Jobs() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userAppliedJobs = [
-    {
-      id: "4",
-      companyName: "Design Masters",
-      role: "UX/UI Designer",
-      internship: {
-        name: "internship",
-        duration: "5 months",
-        stipend: 18000,
-      },
-      fulltime: {
-        name: "fulltime",
-        ctc: 400000,
-      },
-      location: ["Mumbai", "Bangalore"],
-      NumberOfPositions: 1,
-      requiredSkills: ["Adobe XD", "Figma", "Sketch", "User Research"],
-      eligibleBranch: ["Design", "Computer Science"],
-      BacklogsAllowed: "No",
-      StartDate: "2024-05-01",
-      EndDate: "2024-06-01",
-      OtherDetails:
-        "Strong portfolio and understanding of design principles required.",
-    },
-  ];
-
-  const offeredJobs = [
-    {
-      id: "5",
-      companyName: "GreenTech Innovations",
-      role: "Environmental Engineer",
-      internship: {
-        name: "internship",
-        duration: "6 months",
-        stipend: 22000,
-      },
-      fulltime: {
-        name: "fulltime",
-        ctc: 350000,
-      },
-      location: ["Chennai", "Hyderabad"],
-      NumberOfPositions: 2,
-      requiredSkills: [
-        "Environmental Impact Assessment",
-        "Data Analysis",
-        "Sustainability",
-      ],
-      eligibleBranch: ["Environmental Engineering", "Civil Engineering"],
-      BacklogsAllowed: "Yes",
-      StartDate: "2024-06-01",
-      EndDate: "2024-07-01",
-      OtherDetails:
-        "Candidates should have an interest in sustainability and green technologies.",
-    },
-  ];
 
   // Highlight the active category based on the current path
   const getCurrentCategory = () => {
@@ -115,7 +60,6 @@ function Jobs() {
         </div>
       </div>
 
-      {/* Dynamic job display based on the route */}
       <Outlet />
     </div>
   );

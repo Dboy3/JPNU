@@ -120,7 +120,8 @@ export const createUser = async (req, res) => {
             role,
             userId,
             password: hashedPassword,
-            rollNo: role === 'Student' ? rollNo : undefined
+            rollNo: role === 'Student' ? rollNo : undefined,
+            
         });
 
         // Save the user to the database

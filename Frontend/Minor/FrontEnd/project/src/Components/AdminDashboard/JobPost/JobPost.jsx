@@ -14,6 +14,7 @@ const JobPost = () => {
   const dispatch = useDispatch();
   const status = useSelector((state) => state.status);
   const error = useSelector((state) => state.error);
+  const currentDate = new Date().toISOString().split("T")[0];
 
   const [showCtc, setShowCtc] = useState(false);
   const [showStipend, setShowStipend] = useState(false);
@@ -76,6 +77,16 @@ const JobPost = () => {
   };
 
   const onSubmit = (data) => {
+    if ( data.registrationStartDate < currentDate ){
+      alert("the date should be greater than or equal to current data");
+      return ;
+    }
+
+    if ( data.registrationEndDate <= data.registrationStartDate ){
+      alert("date registration end data should be greater than startdate makesure minimum period is 1 day");
+      return ;
+    }
+
     const newJob = {
       id: currentJob ? currentJob.id : Date.now(),
       companyName: data.companyName,
@@ -370,17 +381,23 @@ const JobPost = () => {
                   Registration Period
                 </label>
                 <div className="flex space-x-4">
-                  <input
-                    type="date"
-                    {...register("registrationStartDate", { required: true })}
-                    className="border px-4 py-2 rounded"
-                  />
-                  <input
-                    type="date"
-                    {...register("registrationEndDate", { required: true })}
-                    className="border px-4 py-2 rounded"
-                  />
-                </div>
+            {/* Start Date */}
+            <input
+              type="date"
+              {...register("registrationStartDate", {
+                required: "Registration Start Date is required",
+              })}
+              className="border px-4 py-2 rounded"
+            />
+            {/* End Date */}
+            <input
+              type="date"
+              {...register("registrationEndDate", {
+                required: "Registration End Date is required",
+              })}
+              className="border px-4 py-2 rounded"
+            />
+          </div>
                 {errors.registrationStartDate && (
                   <p className="text-red-500 text-sm">
                     Registration Start Date is required

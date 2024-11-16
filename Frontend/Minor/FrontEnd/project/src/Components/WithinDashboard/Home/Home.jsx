@@ -19,7 +19,7 @@ const Home = () => {
 
   useEffect(()=>{
     dispatch(fetchNotifications());
-  })
+  } , [dispatch])
   const notifications = useSelector(getNotificationList);
   console.log(notifications);  // This will show the latest notifications when they change
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const Home = () => {
         </h2>
         {notifications.map((notification) => (
           <NotificationCard
-            key={notification.id}
+            key={notification._id}
             {...notification}
             onClick={() => handleCardClick(notification.id)}
           />

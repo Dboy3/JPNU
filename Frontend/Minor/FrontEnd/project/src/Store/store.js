@@ -9,6 +9,7 @@ import notificationReducer from "../Components/AdminDashboard/AddNotification/no
 import jobApplicationReducer from "../Components/WithinDashboard/Jobs/JobCategories/jobApplicationSlice" 
 import placedStudentsReducer from "../Components/AdminDashboard/History/placedStudentsSlice"
 import academicDetailsReducer from "../Components/AdminDashboard/AddDetails/academicDetailsSlice"
+import jobReducer from "../Components/WithinDashboard/Jobs/jobSlice"
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     jobApplication : jobApplicationReducer,
     placedStudents : placedStudentsReducer,
     academicDetails: academicDetailsReducer,
+    jobs : jobReducer
   },
 });
 

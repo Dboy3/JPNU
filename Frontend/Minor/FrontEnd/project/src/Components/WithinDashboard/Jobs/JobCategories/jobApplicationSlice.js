@@ -71,7 +71,7 @@ const jobApplicationSlice = createSlice({
       })
       .addCase(applyForJob.fulfilled, (state, action) => {
         state.loading = false;
-        // state.applicationList.push(action.payload.job);
+        state.applicationList.push(action.payload.job);
       })
       .addCase(applyForJob.rejected, (state, action) => {
         state.loading = false;

@@ -6,7 +6,8 @@ import {
   getSingleJob,
 } from "../../../AdminDashboard/JobPost/jobPostSlice";
 import { selectUser } from "../../../../Pages/auth";
-import { applyForJob } from "../JobCategories/jobApplicationSlice";
+import { applyForJob } from "../jobSlice";
+// import { applyForJob } from "../JobCategories/jobApplicationSlice";
 
 const JD = () => {
   const { id } = useParams();
@@ -35,10 +36,10 @@ const JD = () => {
     if (isChecked) {
       setIsApplied(true);
       setIsModalOpen(false);
-
       const data = { userId : user.userId , postId : job.postId } ; 
       console.log("dispatch the applcation");
-      dispatch(applyForJob(data)) ; 
+      // dispatch(applyForJob(data)) ; 
+      dispatch(applyForJob(data))      
     } else {
       alert("Please check the agreement before submitting.");
     }
@@ -85,7 +86,7 @@ const JD = () => {
         <div>
           <h2 className="font-bold text-gray-800">Registration Period</h2>
           <p className="text-gray-600">
-            {job.registrationStartDate} to {job.registrationEndDate}
+            {job.registrationStartDate.split("T")[0]} to {job.registrationEndDate.split("T")[0]}
           </p>
         </div>
       </div>

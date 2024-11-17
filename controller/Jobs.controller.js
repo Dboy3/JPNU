@@ -199,16 +199,87 @@ export const getAdminJobPostings = async (req, res) => {
   }
 };
 
+
+// change - api without dates #
+// export const getJobPostings = async (req, res) => {
+//   try {
+//     const { userId } = req.body; // Assuming id is the userId
+
+//     // Find the user by id
+//     const user = await User.findOne({ userId }); // Assuming you have a User model
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // Extract postIds from appliedJobs array
+//     const appliedJobPostIds = user.appliedJobs.map((job) => job.postId); // assuming appliedJobs is an array of objects with _id and postId
+
+//     // Find all job postings
+//     const jobPostings = await JobPosting.find({}).select("-__v").exec();
+
+//     console.log("jobPostings", jobPostings);
+
+//     if (!jobPostings || jobPostings.length === 0) {
+//       return res.status(404).json({ message: "No job postings found" });
+//     }
+
+//     // Remove job postings that have postId in appliedJobs
+//     // const filteredJobPostings = jobPostings.filter(
+//     //   (job) => !appliedJobPostIds.includes(job.postId)
+//     // );
+
+//     const filteredJobPostings = jobPostings.filter((job) => {
+//       // Check if the user has already applied to the job
+//       if (appliedJobPostIds.includes(job.postId)) {
+//         return false;
+//       }
+
+//       // Check if the user's CGPA is greater than or equal to the required CGPA
+//       if (user.cgpa < job.requiredCgpa) {
+//         return false;
+//       }
+
+//       // Check if the user's branch is in the eligible courses for the job
+//       // console.log(job.eligibleCourses);
+//       // if (!job.eligibleCourses.includes(user.branch)) {
+//       //   return false;
+//       // }
+
+//       const eligibleCoursesLower = job.eligibleCourses.map((course) =>
+//         course.toLowerCase()
+//       );
+//       if (!eligibleCoursesLower.includes(user.branch)) {
+//         return false;
+//       }
+
+
+//       // change after 18th commit 
+
+
+//       // If all checks pass, include the job posting
+//       return true;
+//     });
+
+//     res.status(200).json({ jobPostings: filteredJobPostings });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Error retrieving job postings", error });
+//   }
+// };
+
 export const getJobPostings = async (req, res) => {
   try {
     const { userId } = req.body; // Assuming id is the userId
 
-    // Find the user by id
+    // Find the user by userId
     const user = await User.findOne({ userId }); // Assuming you have a User model
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    const { cgpa } = user;
 
     // Extract postIds from appliedJobs array
     const appliedJobPostIds = user.appliedJobs.map((job) => job.postId); // assuming appliedJobs is an array of objects with _id and postId
@@ -216,48 +287,21 @@ export const getJobPostings = async (req, res) => {
     // Find all job postings
     const jobPostings = await JobPosting.find({}).select("-__v").exec();
 
-    console.log("jobPostings", jobPostings);
-
     if (!jobPostings || jobPostings.length === 0) {
       return res.status(404).json({ message: "No job postings found" });
     }
 
-    // Remove job postings that have postId in appliedJobs
-    // const filteredJobPostings = jobPostings.filter(
-    //   (job) => !appliedJobPostIds.includes(job.postId)
-    // );
+    // Get today's date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set time to midnight for consistent comparison
 
-    const filteredJobPostings = jobPostings.filter((job) => {
-      // Check if the user has already applied to the job
-      if (appliedJobPostIds.includes(job.postId)) {
-        return false;
-      }
-
-      // Check if the user's CGPA is greater than or equal to the required CGPA
-      if (user.cgpa < job.requiredCgpa) {
-        return false;
-      }
-
-      // Check if the user's branch is in the eligible courses for the job
-      // console.log(job.eligibleCourses);
-      // if (!job.eligibleCourses.includes(user.branch)) {
-      //   return false;
-      // }
-
-      const eligibleCoursesLower = job.eligibleCourses.map((course) =>
-        course.toLowerCase()
-      );
-      if (!eligibleCoursesLower.includes(user.branch)) {
-        return false;
-      }
-
-
-
-
-
-      // If all checks pass, include the job posting
-      return true;
-    });
+    // Filter job postings
+    const filteredJobPostings = jobPostings.filter(
+      (job) =>
+        !appliedJobPostIds.includes(job.postId) && // Exclude applied jobs
+        (!job.requiredCgpa || cgpa >= job.requiredCgpa) && // Match CGPA requirement
+        (!job.registrationEndDate || new Date(job.registrationEndDate) >= today) // Exclude jobs with expired registrationEndDate
+    );
 
     res.status(200).json({ jobPostings: filteredJobPostings });
   } catch (error) {

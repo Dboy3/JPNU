@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNotifications, getNotificationList } from '../../AdminDashboard/AddNotification/notificationSlice';
+import { selectUser } from '../../../Pages/auth';
 
 const NotificationCard = ({ message, date, onClick }) => (
   <div
@@ -17,6 +18,7 @@ const NotificationCard = ({ message, date, onClick }) => (
 const Home = () => {
   const dispatch = useDispatch() ; 
 
+
   useEffect(()=>{
     dispatch(fetchNotifications());
   } , [dispatch])
@@ -27,6 +29,8 @@ const Home = () => {
   const handleCardClick = (id) => {
     navigate(`d/jobs/${id}`);
   };
+
+  
 
   return (
     <div className="flex flex-col md:flex-row p-4 gap-6">

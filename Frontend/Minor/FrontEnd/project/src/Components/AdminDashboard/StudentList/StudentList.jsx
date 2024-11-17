@@ -8,7 +8,7 @@ function StudentList() {
 
   // New state for filters
   const [cgpaFilter, setCgpaFilter] = useState("");
-  const [branchFilter, setBranchFilter] = useState("");
+  const [selectedBranches, setSelectedBranches] = useState([]); // Updated to track multiple branches
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -46,12 +46,23 @@ function StudentList() {
     }
   };
 
+  // Handle branch filter checkbox change
+  const handleBranchFilterChange = (event) => {
+    const { value, checked } = event.target;
+    setSelectedBranches((prevSelectedBranches) => {
+      if (checked) {
+        return [...prevSelectedBranches, value];
+      } else {
+        return prevSelectedBranches.filter((branch) => branch !== value);
+      }
+    });
+  };
+
   // Apply filters to the student data
   const filteredStudents = students.filter((student) => {
     let matchesCgpa = true;
     let matchesBranch = true;
 
-    // Apply CGPA filter
     // Apply CGPA filter
     if (cgpaFilter) {
       if (cgpaFilter === "below5" && student.cgpa >= 5) {
@@ -69,12 +80,9 @@ function StudentList() {
       }
     }
 
-    // Apply Branch filter
-    if (branchFilter) {
-      // Ensure we compare the branch in a case-sensitive manner
-      matchesBranch =
-        student.branch &&
-        student.branch.toUpperCase() === branchFilter.toUpperCase();
+    // Apply Branch filter (multiple branches selected)
+    if (selectedBranches.length > 0) {
+      matchesBranch = selectedBranches.includes(student.branch);
     }
 
     return matchesCgpa && matchesBranch;
@@ -124,16 +132,24 @@ function StudentList() {
           <option value="above9">Above 9</option>
         </select>
 
-        <select
-          value={branchFilter}
-          onChange={(e) => setBranchFilter(e.target.value)}
-          className="border text-primary-dark p-2 rounded focus:outline-none focus:ring focus:ring-primary-light transition-all"
-        >
-          <option value="">Select Branch</option>
-          <option value="CSE">CSE</option>
-          <option value="EC">EC</option>
-          <option value="EE">EE</option>
-        </select>
+        {/* Branch filter with checkboxes */}
+        <div>
+          <label className="block font-medium">Select Branches</label>
+          <div className="flex space-x-3">
+            {["CSE", "EC", "EE"].map((branch) => (
+              <label key={branch} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  value={branch}
+                  checked={selectedBranches.includes(branch)}
+                  onChange={handleBranchFilterChange}
+                  className="h-4 w-4 text-primary"
+                />
+                <span>{branch}</span>
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Students Table */}

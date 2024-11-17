@@ -62,7 +62,7 @@ const JobPost = () => {
       fetchJobs();
     } catch (error) {
       console.error("Error adding job:", error);
-      alert("Something went wrong while adding the job.");
+      alert(`${error}`);
     }
   };
 

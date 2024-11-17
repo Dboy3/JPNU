@@ -138,9 +138,36 @@ export const getJobPostings = async (req, res) => {
     }
 
     // Remove job postings that have postId in appliedJobs
-    const filteredJobPostings = jobPostings.filter(
-      (job) => !appliedJobPostIds.includes(job.postId)
-    );
+    // const filteredJobPostings = jobPostings.filter(
+    //   (job) => !appliedJobPostIds.includes(job.postId)
+    // );
+
+
+    const filteredJobPostings = jobPostings.filter((job) => {
+      // Check if the user has already applied to the job
+      if (appliedJobPostIds.includes(job.postId)) {
+        return false;
+      }
+
+      // Check if the user's CGPA is greater than or equal to the required CGPA
+      if (user.cgpa < job.requiredCgpa) {
+        return false;
+      }
+
+      // Check if the user's branch is in the eligible courses for the job
+      // console.log(job.eligibleCourses);
+      // if (!job.eligibleCourses.includes(user.branch)) {
+      //   return false;
+      // }
+
+      const eligibleCoursesLower = job.eligibleCourses.map(course => course.toLowerCase());
+      if (!eligibleCoursesLower.includes(user.branch)) {
+        return false;
+      }
+
+      // If all checks pass, include the job posting
+      return true;
+    });
 
     res.status(200).json({ jobPostings: filteredJobPostings });
   } catch (error) {

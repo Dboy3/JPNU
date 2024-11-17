@@ -1,25 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import {
-  fetchJobPosts,
-  addJobPost,
-  updateJobPost,
-  deleteJobPost,
-} from "./jobPostSlice"; // Assuming the slice is named jobSlice
-import { getJobs } from "./jobPostSlice";
 
 const JobPost = () => {
-  const dispatch = useDispatch();
-  const status = useSelector((state) => state.status);
-  const error = useSelector((state) => state.error);
-
+  const [jobs, setJobs] = useState([]); // Initialize jobs as an empty array
+  const [showForm, setShowForm] = useState(false);
   const [showCtc, setShowCtc] = useState(false);
   const [showStipend, setShowStipend] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [currentJob, setCurrentJob] = useState(null);
-
   const {
     register,
     handleSubmit,
@@ -27,12 +13,43 @@ const JobPost = () => {
     formState: { errors },
   } = useForm();
 
-  useEffect(() => {
-    dispatch(fetchJobPosts());
-  }, [dispatch]);
+  const currentDate = new Date().toISOString().split("T")[0];
 
-  const jobs = useSelector(getJobs);
-  console.log("jobs from console : ", jobs);
+  // Fetch jobs from API
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/jobs/get", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        console.error("Error fetching jobs:", response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Fetched Jobs Data:", data); // Debugging log
+      console.log(typeof data);
+      console.log(
+        "Is data an array?",
+        Array.isArray(data.jobPostings),
+        "Data:",
+        data.jobPostings
+      );
+
+      setJobs(Array.isArray(data.jobPostings) ? data.jobPostings : []);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  useEffect(() => {
+    console.log("Jobs state updated:", jobs);
+  }, [jobs]);
 
   const handleEmploymentTypeChange = (e) => {
     const { name, checked } = e.target;
@@ -41,43 +58,22 @@ const JobPost = () => {
   };
 
   const handleAddJob = () => {
-    setCurrentJob(null);
     reset();
     setShowForm(true);
   };
 
-  const handleEditJob = (job) => {
-    console.log("edit button is called");
-    console.log("job is ", job);
-    setCurrentJob(job);
-    reset({
-      _id : job._id,
-      companyName: job.companyName,
-      roles: job.roles.join(", "),
-      employmentType: job.employmentType,
-      ctc: job.ctc || "",
-      stipend: job.stipend || "",
-      eligibleCourses: job.eligibleCourses.join(", "),
-      requiredCgpa: job.requiredCgpa,
-      location: job.location.join(", "),
-      otherDetails: job.otherDetails,
-      registrationStartDate: job.registrationStartDate,
-      registrationEndDate: job.registrationEndDate,
-      urlLink: job.urlLink || "",
-    });
-    setShowForm(true);
-    setShowCtc(job.employmentType.fullTime);
-    setShowStipend(job.employmentType.internship);
-  };
-
-  const handleDeleteJob = (id) => {
-    console.log("delete button is called");
-    dispatch(deleteJobPost(id));
-  };
-
   const onSubmit = (data) => {
+    if (data.registrationStartDate < currentDate) {
+      alert("The date should be greater than or equal to the current date.");
+      return;
+    }
+
+    if (data.registrationEndDate <= data.registrationStartDate) {
+      alert("End date should be at least one day after the start date.");
+      return;
+    }
+
     const newJob = {
-      id: currentJob ? currentJob.id : Date.now(),
       companyName: data.companyName,
       roles: data.roles ? data.roles.split(",").map((role) => role.trim()) : [],
       employmentType: {
@@ -99,13 +95,7 @@ const JobPost = () => {
       urlLink: data.urlLink || null,
     };
 
-    if (currentJob) {
-      console.log("new job", newJob);
-      dispatch(updateJobPost(newJob));
-    } else {
-      dispatch(addJobPost(newJob));
-    }
-
+    addJob(newJob);
     setShowForm(false);
   };
 
@@ -121,69 +111,53 @@ const JobPost = () => {
         </button>
       </div>
 
-      {jobs && (
+      {console.log(jobs)}
+      {jobs.length > 0 ? (
         <div className="grid gap-8">
           {jobs.map((job) => (
             <div
-              key={job._id}
+              key={job._id || job.postId} // Use `postId` as a fallback if `_id` is missing
               className="p-6 border rounded-lg shadow-md bg-white"
             >
-              <div className="flex justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold">{job.companyName}</h3>
-                  <p>
-                    <strong>Roles:</strong> {job.roles.join(", ")}
-                  </p>
-                  <p>
-                    <strong>CTC:</strong> {job.ctc || "Not Applicable"}
-                  </p>
-                  <p>
-                    <strong>Stipend:</strong> {job.stipend || "Not Applicable"}
-                  </p>
-                  {/* <p>
-                    <strong>Eligible Courses:</strong>{" "}
-                    {job.eligibleCourses.join(", ")}
-                  </p> */}
-                  <p className="text-gray-500">{job.location.join(", ")}</p>
-                  <p className="mt-4">{job.otherDetails}</p>
-                  {job.urlLink && (
-                    <p className="mt-2">
-                      URL:{" "}
-                      <a
-                        href={job.urlLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {job.urlLink}
-                      </a>
-                    </p>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditJob(job)}
-                    className="text-blue-500"
+              <h3 className="text-xl font-semibold">{job.companyName}</h3>
+              <p>
+                <strong>Roles:</strong> {job.roles?.join(", ") || "N/A"}
+              </p>
+              <p>
+                <strong>CTC:</strong>{" "}
+                {job.ctc ? `${job.ctc}` : "Not Applicable"}
+              </p>
+              <p>
+                <strong>Stipend:</strong> {job.stipend || "Not Applicable"}
+              </p>
+              <p>
+                <strong>Location:</strong> {job.location?.join(", ") || "N/A"}
+              </p>
+              <p className="mt-4">{job.otherDetails}</p>
+              {job.urlLink && (
+                <p>
+                  URL:{" "}
+                  <a
+                    href={job.urlLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteJob(job.id)}
-                    className="text-red-500"
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </div>
-              </div>
+                    {job.urlLink}
+                  </a>
+                </p>
+              )}
             </div>
           ))}
         </div>
+      ) : (
+        <p>No job postings available.</p>
       )}
 
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-screen overflow-y-auto">
             <h2 className="text-2xl mb-4">
-              {currentJob ? "Edit Job Posting" : "Add New Job Posting"}
+              Add New JobPost
             </h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* Company Name */}
@@ -238,7 +212,6 @@ const JobPost = () => {
               </div>
 
               {/* CTC */}
-
               {showCtc && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">CTC</label>
@@ -260,8 +233,6 @@ const JobPost = () => {
                 </div>
               )}
 
-              {/* Stipend */}
-              {/* Stipend */}
               {showStipend && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
@@ -370,14 +341,20 @@ const JobPost = () => {
                   Registration Period
                 </label>
                 <div className="flex space-x-4">
+                  {/* Start Date */}
                   <input
                     type="date"
-                    {...register("registrationStartDate", { required: true })}
+                    {...register("registrationStartDate", {
+                      required: "Registration Start Date is required",
+                    })}
                     className="border px-4 py-2 rounded"
                   />
+                  {/* End Date */}
                   <input
                     type="date"
-                    {...register("registrationEndDate", { required: true })}
+                    {...register("registrationEndDate", {
+                      required: "Registration End Date is required",
+                    })}
                     className="border px-4 py-2 rounded"
                   />
                 </div>
@@ -398,7 +375,7 @@ const JobPost = () => {
                 type="submit"
                 className="bg-primary text-white px-6 py-2 rounded mt-4"
               >
-                {currentJob ? "Update Job Posting" : "Add Job Posting"}
+                Add Job Posting
               </button>
             </form>
           </div>

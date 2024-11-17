@@ -32,15 +32,52 @@ const JD = () => {
     setIsChecked(!isChecked);
   };
 
-  const handleFormSubmit = () => {
-    // call from the backend to check is profile complete or not
-    if (isChecked) {
-      setIsApplied(true);
-      setIsModalOpen(false);
-      const data = { userId: user.userId, postId: job.postId };
-      dispatch(applyForJob(data));
-    } else {
-      alert("Please check the agreement before submitting.");
+  // change -note
+  // const handleFormSubmit = () => {
+  //   // call from the backend to check is profile complete or not
+
+  //   if (isChecked) {
+  //     setIsApplied(true);
+  //     setIsModalOpen(false);
+  //     const data = { userId: user.userId, postId: job.postId };
+  //     dispatch(applyForJob(data));
+  //   } else {
+  //     alert("Please check the agreement before submitting.");
+  //   }
+  // };
+
+  const handleFormSubmit = async () => {
+    try {
+      // Call the backend API to check if the profile is complete
+      const response = await fetch("http://localhost:8000/api/profile/isProf", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (result.status === "NOT OK") {
+        alert("Please add at least one project to complete your profile.");
+        return;
+      }
+
+      if (isChecked) {
+        setIsApplied(true);
+        setIsModalOpen(false);
+
+        const data = { userId: user.userId, postId: job.postId };
+        dispatch(applyForJob(data));
+      } else {
+        alert("Please check the agreement before submitting.");
+      }
+    } catch (error) {
+      console.error("Error checking profile completeness:", error);
+      alert(
+        "An error occurred while checking your profile. Please try again later."
+      );
     }
   };
 
@@ -145,18 +182,18 @@ const JD = () => {
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Apply for {job.roles.join(", ")}
             </h2>
-            <div className="flex items-center mb-4">
+            <div className="flex items-center mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
               <input
                 type="checkbox"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
-                className="mr-2"
+                className="mr-2 w-5 h-5 text-primary-dark border-gray-300 rounded focus:ring-primary-darker"
               />
-              <label className="text-gray-600">
-                I am aware that the details entered by me are valid
+              <label className="text-gray-800 font-medium">
+                I am aware that the details entered by me are valid. Please
+                check resume before submitting application.
               </label>
             </div>
-
 
             <button
               onClick={handleFormSubmit}

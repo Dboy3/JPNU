@@ -251,6 +251,10 @@ export const getJobPostings = async (req, res) => {
         return false;
       }
 
+
+
+
+
       // If all checks pass, include the job posting
       return true;
     });

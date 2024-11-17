@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { selectUser } from "../../../../Pages/auth";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 function GeneralDetailsForm() {
   const user = useSelector(selectUser);
@@ -26,6 +26,56 @@ function GeneralDetailsForm() {
     contactNumber: "",
     languages: "",
   });
+
+  // useEffect(() => {
+  //   // Fetch general details from the API
+  //   const fetchGeneralDetails = async () => {
+  //     try {
+  //       const response = await fetch("/api/getGeneralDetails", {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       });
+
+  //       const data = await response.json();
+  //       // the data oject is not empty
+  //       if (data && data.data) {
+  //         const {
+  //           firstName,
+  //           middleName,
+  //           lastName,
+  //           rollNo,
+  //           course,
+  //           languages,
+  //           achievements,
+  //           skills,
+  //           contact,
+  //           githublink,
+  //         } = data.data;
+
+  //         setFormData({
+  //           firstName: firstName || "",
+  //           middleName: middleName || "",
+  //           lastName: lastName || "",
+  //           rollNo: rollNo || "",
+  //           course: course || "",
+  //           languages: languages || "",
+  //           achievements: achievements || [""],
+  //           skills: skills || [""],
+  //           contactNumber: contact || "",
+  //           email: "", // Update based on your business logic
+  //           githubLink: githublink || "",
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching general details:", error);
+  //     }
+  //   };
+
+  //   fetchGeneralDetails();
+  // }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,7 +137,12 @@ function GeneralDetailsForm() {
 
   const validateForm = () => {
     let valid = true;
-    let errorMessages = { email: "", githubLink: "", contactNumber: "", languages: "" };
+    let errorMessages = {
+      email: "",
+      githubLink: "",
+      contactNumber: "",
+      languages: "",
+    };
 
     // Email validation: should not end with @nirmauni.ac.in
     if (formData.email.endsWith("@nirmauni.ac.in")) {
@@ -96,7 +151,8 @@ function GeneralDetailsForm() {
     }
 
     // GitHub link validation: should be a valid URL
-    const githubPattern = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
+    const githubPattern =
+      /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
     if (formData.githubLink && !githubPattern.test(formData.githubLink)) {
       errorMessages.githubLink = "Please enter a valid GitHub URL";
       valid = false;
@@ -119,13 +175,31 @@ function GeneralDetailsForm() {
     return valid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log(formData);
     // Perform validation before submitting
     if (validateForm()) {
-      console.log("Form Data:", formData);
-      // Handle form submission logic
+      try {
+        const response = await fetch("/api/createGeneralDetails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+          credentials: "include",
+        });
+
+        const result = await response.json();
+        if (result.message) {
+          alert(result.message);
+        } else {
+          alert("An error occurred while submitting the data.");
+        }
+      } catch (error) {
+        console.error("Error submitting general details:", error);
+      }
     }
   };
 
@@ -214,7 +288,9 @@ function GeneralDetailsForm() {
             className="w-full p-2 border rounded"
             required
           />
-          {errors.contactNumber && <p className="text-red-600">{errors.contactNumber}</p>}
+          {errors.contactNumber && (
+            <p className="text-red-600">{errors.contactNumber}</p>
+          )}
         </div>
 
         {/* Email (Required) */}
@@ -246,7 +322,9 @@ function GeneralDetailsForm() {
             className="w-full p-2 border rounded"
             placeholder="https://github.com/your-username"
           />
-          {errors.githubLink && <p className="text-red-600">{errors.githubLink}</p>}
+          {errors.githubLink && (
+            <p className="text-red-600">{errors.githubLink}</p>
+          )}
         </div>
 
         {/* Known Languages (Required) */}
@@ -263,7 +341,9 @@ function GeneralDetailsForm() {
             placeholder="e.g., English, Hindi"
             required
           />
-          {errors.languages && <p className="text-red-600">{errors.languages}</p>}
+          {errors.languages && (
+            <p className="text-red-600">{errors.languages}</p>
+          )}
         </div>
 
         {/* Achievements */}

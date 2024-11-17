@@ -7,21 +7,31 @@ const generalDetailsSchema = new mongoose.Schema({
     middleName: { type: String },
     rollNo: { type: String, required: true },
     course: { type: String, required: true },
-    gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
-    dob: { type: Date, required: true },
-    bloodGroup: { type: String, required: true, enum: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] },
     skills: { type: [String], required: false }, // Array of strings for skills
-    languages: { type: [String], required: false }, // Array of strings for known languages
+    languages: { type: [String], required: false },
+    achievements: {type:[String],required: false}, // Array of strings for known languages
     contact: {
         type: String,
         required: true,
         match: /^[0-9]{10}$/, // Regex to ensure the contact number is a 10-digit number
     },
-    introduction: {
-        type: String,
-        required: true,
-        maxlength: 100, // Maximum length of 100 characters
-    },
+    githublink:{type : String,required:false}   
+    
 }); // Automatically adds createdAt and updatedAt timestamps
 
-export default mongoose.model('GeneralDetails', generalDetailsSchema);
+
+
+const projectDetailsSchema = new mongoose.Schema({
+  userId: { type: String, required: true }, // Reference to the User model
+  title: { type: String, required: true },
+  link: { type: String, required: false }, // Optional field for project URL
+  teamSize: { type: Number, required: true, min: 1 }, // Minimum team size is 1
+  mentor: { type: String, required: false }, // Optional field for mentor name
+  techStack: { type: [String], required: true }, // Array of strings for technologies used
+  description: { type: String, required: true, maxlength: 1000 }, // Max length of 1000 characters for the description
+}, { timestamps: true }); // Automatically adds createdAt and updatedAt timestamps
+
+export const projectDetails =  mongoose.model('projectDetails', projectDetailsSchema);
+export const GeneralDetails =  mongoose.model('GeneralDetails', generalDetailsSchema);
+
+// export default mongoose.model('GeneralDetails', generalDetailsSchema);

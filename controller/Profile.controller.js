@@ -1,5 +1,6 @@
-import GeneralDetails from "../models/Profile.model.js";
+
 import jwt from "jsonwebtoken";
+import {GeneralDetails,projectDetails} from "../models/Profile.model.js";
 
 // Helper function to extract userId from the JWT token in the cookie
 const extractUserIdFromToken = (req, res) => {
@@ -22,49 +23,77 @@ const extractUserIdFromToken = (req, res) => {
 export const createGeneralDetails = async (req, res) => {
   try {
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    console.log(userId);
     if (!userId) return; // If token is invalid or missing, stop further execution
 
-    const details = req.body;
+    const {
+      firstName,
+      middleName,
+      lastName,
+      rollNo,
+      course,
+      languages,
+      achievements,
+      skills,
+      contactNumber,
+      email,
+      githubLink
+    } = req.body;
 
-    // Check if required fields are provided
-    if (
-      !details.firstName ||
-      !details.lastName ||
-      !details.rollNo ||
-      !details.course ||
-      !details.gender ||
-      !details.contact ||
-      !details.introduction
-    ) {
-      return res
-        .status(400)
-        .json({ error: "All required fields must be provided." });
+    console.log(req.body);
+
+    // Check if all required fields are provided
+    if (!firstName || !lastName || !rollNo || !course || !contactNumber) {
+      return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
-    // Check if user data already exists
-    const existingData = await GeneralDetails.findOne({ userId });
-    if (existingData) {
-      return res
-        .status(400)
-        .json({ error: "User data already exists. Use the update endpoint." });
+    // Validate contact number
+    if (!/^[0-9]{10}$/.test(contactNumber)) {
+      return res.status(400).json({ message: 'Contact number must be a valid 10-digit number.' });
     }
 
-    // Create a new entry
-    const newData = new GeneralDetails({ ...details, userId });
-    await newData.save();
+    // Check if an entry with the same userId already exists
+    const existingEntry = await GeneralDetails.findOne({ userId });
 
-    // Return success response
-    res
-      .status(201)
-      .json({
-        message: "General details inserted successfully.",
-        data: newData,
+    if (existingEntry) {
+      // If entry exists, update it
+      existingEntry.firstName = firstName;
+      existingEntry.lastName = lastName;
+      existingEntry.middleName = middleName || existingEntry.middleName;
+      existingEntry.rollNo = rollNo;
+      existingEntry.course = course;
+      existingEntry.skills = skills.length ? skills : existingEntry.skills;
+      existingEntry.languages = languages || existingEntry.languages;
+      existingEntry.achievements = achievements.length ? achievements : existingEntry.achievements;
+      existingEntry.contact = contactNumber;
+      existingEntry.githubLink = githubLink || existingEntry.githubLink;
+      existingEntry.email = email || existingEntry.email;
+
+      await existingEntry.save();
+      return res.status(200).json({ message: 'General details updated successfully.', data: existingEntry });
+    } else {
+      // If no entry exists, create a new one
+      const newEntry = new GeneralDetails({
+        userId,
+        firstName,
+        lastName,
+        middleName,
+        rollNo,
+        course,
+        skills: skills.length ? skills : undefined,
+        languages: languages || undefined,
+        achievements: achievements.length ? achievements : undefined,
+        contact,
+        githubLink,
+        email,
       });
+
+      await newEntry.save();
+      return res.status(201).json({ message: 'General details added successfully.', data: newEntry });
+    }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while inserting general details." });
+    res.status(500).json({ message: 'An error occurred while adding/updating general details.', error });
   }
 };
 
@@ -120,5 +149,59 @@ export const getGeneralDetails = async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while retrieving general details." });
+  }
+};
+
+export const addProject = async (req, res) =>{
+  try {
+    // Destructure and validate required fields from the request body
+    const {
+      userId,
+      title,
+      link,
+      teamSize,
+      techStack,
+      description,
+    } = req.body;
+
+    // Check if all required fields are provided
+    if (!userId || !title || !teamSize || !description) {
+      return res.status(400).json({ message: 'All required fields must be provided.' });
+    }
+
+    // Check if team size is valid
+    if (teamSize < 1) {
+      return res.status(400).json({ message: 'Team size must be at least 1.' });
+    }
+
+    // Check if an entry with the same userId and title already exists
+    const existingEntry = await ProjectDetails.findOne({ userId, title });
+
+    if (existingEntry) {
+      // If entry exists, update it
+      existingEntry.link = link || existingEntry.link;
+      existingEntry.teamSize = teamSize;
+      existingEntry.techStack = techStack || existingEntry.techStack;
+      existingEntry.description = description;
+
+      await existingEntry.save();
+      return res.status(200).json({ message: 'Project details updated successfully.', data: existingEntry });
+    } else {
+      // If no entry exists, create a new one
+      const newEntry = new projectDetails({
+        userId,
+        title,
+        link,
+        teamSize,
+        techStack,
+        description,
+      });
+
+      await newEntry.save();
+      return res.status(201).json({ message: 'Project details added successfully.', data: newEntry });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while adding/updating project details.', error });
   }
 };

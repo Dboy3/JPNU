@@ -5,7 +5,7 @@ import PlacedStudents from "../models/Placed.model.js";
 import PlacedData from "../models/PlacedData.model.js";
 import { Application } from "../models/JobPosting.model.js";
 import { Notification } from "../models/notification.model.js";
-import GeneralDetails from "../models/Profile.model.js";
+import {GeneralDetails} from "../models/Profile.model.js";
 import User from "../models/user.model.js";
 
 import jwt from "jsonwebtoken";

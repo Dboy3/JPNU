@@ -1,102 +1,169 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const studentsData = [
-  {
-    id: "66c5861c315484408b8b0d18",
-    firstName: "Jatin",
-    middleName: "Lalit",
-    lastName: "Varyani",
-    email: "22bce545@nirmauni.ac.in",
-    phoneNumber: "8128677995",
-    role: "Student",
-    userId: "92538617-4f2e-4788-ba62-6333db6c2723",
-  },
-  {
-    id: "77a5861c315484408b8b0e09",
-    firstName: "Ayesha",
-    middleName: "Kumar",
-    lastName: "Singh",
-    email: "22bce123@nirmauni.ac.in",
-    phoneNumber: "9876543210",
-    role: "Student",
-    userId: "23456789-4f2e-4788-ba62-1234db6c2723",
-  },
-];
+function PlacedStudent() {
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [companies, setCompanies] = useState([]);
+  const [students, setStudents] = useState([]);
 
-const companiesData = ["Google", "Tech Innovators", "Global Analytics"];
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/jobs/get");
+        const companyList = response.data.jobPostings.map((job) => ({
+          id: job.postId,
+          name: job.companyName,
+        }));
+        setCompanies(companyList);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+      }
+    };
 
-const PlacedStudents = () => {
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [filteredStudents, setFilteredStudents] = useState([]);
+    fetchCompanies();
+  }, []);
 
-  const handleCompanyChange = (e) => {
-    setSelectedCompany(e.target.value);
+  const handleCompanyChange = (event) => {
+    setSelectedCompany(event.target.value);
+    setStudents([]);
   };
 
-  const handleGetList = () => {
-    // Filter logic here based on company name.
-    setFilteredStudents(studentsData); 
+  const handleShowData = async () => {
+    if (selectedCompany) {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/jobs/getstudentbypostid",
+          { postId: selectedCompany }
+        );
+        setStudents(response.data || []);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    }
+  };
+
+  const handlePlacementChange = async (studentId, placed) => {
+    try {
+      // Call API to update placement status in the database
+      const response = await axios.post("http://localhost:8000/api/placements/update", {
+        studentId,
+        postId: selectedCompany,
+        placed: !placed, // Toggle placed value
+      });
+
+      // If the placement status is true (placed), add data to the PlacedData collection
+      if (!placed) {
+        await axios.post("http://localhost:8000/api/placements/placeddata", {
+          userId: studentId,
+          postId: selectedCompany,
+        });
+      }
+
+      // Update students list with the new placement status
+      setStudents((prevStudents) =>
+        prevStudents.map((student) =>
+          student._id === studentId
+            ? { ...student, placed: !placed }
+            : student
+        )
+      );
+    } catch (error) {
+      console.error("Error updating placement status:", error);
+    }
   };
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-semibold mb-4 text-primary-dark">Placed Students</h1>
-      
-      <div className="flex items-center mb-4 space-x-3">
-        <label htmlFor="company" className="text-primary-dark">Select Company:</label>
+    <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-sm">
+      <h2 className="text-xl font-semibold text-primary-dark mb-4 text-center">
+        Student Applications
+      </h2>
+      <div className="flex items-center space-x-3 mb-4">
         <select
-          id="company"
           value={selectedCompany}
           onChange={handleCompanyChange}
-          className="p-2 border rounded border-primary-light text-primary-dark"
+          className="border text-primary-dark p-2 rounded focus:outline-none focus:ring focus:ring-primary-light transition-all"
         >
-          <option value="">Select a company</option>
-          {companiesData.map((company) => (
-            <option key={company} value={company}>
-              {company}
+          <option value="" disabled>
+            Select a Company
+          </option>
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.name}
             </option>
           ))}
         </select>
         <button
-          onClick={handleGetList}
-          className="p-2 bg-primary-dark text-white rounded hover:bg-primary-darker transition-colors"
+          onClick={handleShowData}
+          className="bg-primary text-white px-3 py-2 rounded-md hover:bg-primary-dark transition-all focus:outline-none"
         >
-          Get List
+          Show Data
         </button>
       </div>
 
-      <div className="border border-primary-light rounded-lg p-4">
-        {filteredStudents.length > 0 ? (
-          <table className="w-full border-collapse text-primary-darker">
+      {/* Students Table */}
+      <div>
+        {students.length > 0 ? (
+          <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-primary-lightest">
-                <th className="py-2 px-4 text-left border-b border-primary-light">ID</th>
-                <th className="py-2 px-4 text-left border-b border-primary-light">Name</th>
-                <th className="py-2 px-4 text-left border-b border-primary-light">Email</th>
-                <th className="py-2 px-4 text-left border-b border-primary-light">Phone</th>
-                <th className="py-2 px-4 text-left border-b border-primary-light">Role</th>
+              <tr>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  First Name
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Last Name
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Email
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Phone Number
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Branch
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  CGPA
+                </th>
+                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                  Placement Status
+                </th>
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-primary-lightest transition-colors">
-                  <td className="py-2 px-4 border-b border-primary-light">{student.id}</td>
-                  <td className="py-2 px-4 border-b border-primary-light">
-                    {student.firstName} {student.middleName} {student.lastName}
+              {students.map((student) => (
+                <tr key={student._id} className="border-t">
+                  <td className="p-2">{student.firstName}</td>
+                  <td className="p-2">{student.lastName}</td>
+                  <td className="p-2">{student.email}</td>
+                  <td className="p-2">{student.phoneNumber}</td>
+                  <td className="p-2">{student.branch}</td>
+                  <td className="p-2">{student.cgpa}</td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => handlePlacementChange(student._id, student.placed)}
+                      className={`px-4 py-2 rounded-md ${
+                        student.placed
+                          ? "text-green-400 hover:bg-green-600 hover:text-white"
+                          : "text-red-400 hover:bg-red-600 hover:text-white"
+                      } text-white`}
+                    >
+                      {student.placed ? "Placed" : "Unplaced"}
+                    </button>
                   </td>
-                  <td className="py-2 px-4 border-b border-primary-light">{student.email}</td>
-                  <td className="py-2 px-4 border-b border-primary-light">{student.phoneNumber}</td>
-                  <td className="py-2 px-4 border-b border-primary-light">{student.role}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p className="text-primary-darker mt-4">No students found for the selected company.</p>
+          selectedCompany && (
+            <p className="text-primary-darker italic text-center">
+              No students applied for this job.
+            </p>
+          )
         )}
       </div>
     </div>
   );
-};
+}
 
-export default PlacedStudents;
+export default PlacedStudent;

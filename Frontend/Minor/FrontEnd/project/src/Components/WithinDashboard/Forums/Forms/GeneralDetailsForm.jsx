@@ -1,195 +1,338 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from "react";
+import { selectUser } from "../../../../Pages/auth";
+import {  useSelector } from "react-redux";
 
 function GeneralDetailsForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const user = useSelector(selectUser);
+  console.log(user);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Handle form submission logic
+  const [formData, setFormData] = useState({
+    firstName: user.firstName,
+    middleName: user.middleName,
+    lastName: user.lastName,
+    rollNo: user.rollNo,
+    course: user.branch,
+    languages: "",
+    achievements: [""],
+    skills: [""],
+    contactNumber: user.phoneNumber,
+    email: "",
+    githubLink: "",
+  });
+
+  const [errors, setErrors] = useState({
+    email: "",
+    githubLink: "",
+    contactNumber: "",
+    languages: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAchievementChange = (index, value) => {
+    const updatedAchievements = [...formData.achievements];
+    updatedAchievements[index] = value;
+    setFormData((prev) => ({
+      ...prev,
+      achievements: updatedAchievements,
+    }));
+  };
+
+  const addAchievementField = () => {
+    setFormData((prev) => ({
+      ...prev,
+      achievements: [...prev.achievements, ""],
+    }));
+  };
+
+  const removeAchievementField = (index) => {
+    const updatedAchievements = formData.achievements.filter(
+      (_, i) => i !== index
+    );
+    setFormData((prev) => ({
+      ...prev,
+      achievements: updatedAchievements,
+    }));
+  };
+
+  const handleSkillChange = (index, value) => {
+    const updatedSkills = [...formData.skills];
+    updatedSkills[index] = value;
+    setFormData((prev) => ({
+      ...prev,
+      skills: updatedSkills,
+    }));
+  };
+
+  const addSkillField = () => {
+    setFormData((prev) => ({
+      ...prev,
+      skills: [...prev.skills, ""],
+    }));
+  };
+
+  const removeSkillField = (index) => {
+    const updatedSkills = formData.skills.filter((_, i) => i !== index);
+    setFormData((prev) => ({
+      ...prev,
+      skills: updatedSkills,
+    }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    let errorMessages = { email: "", githubLink: "", contactNumber: "", languages: "" };
+
+    // Email validation: should not end with @nirmauni.ac.in
+    if (formData.email.endsWith("@nirmauni.ac.in")) {
+      errorMessages.email = "Email should not end with @nirmauni.ac.in";
+      valid = false;
+    }
+
+    // GitHub link validation: should be a valid URL
+    const githubPattern = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
+    if (formData.githubLink && !githubPattern.test(formData.githubLink)) {
+      errorMessages.githubLink = "Please enter a valid GitHub URL";
+      valid = false;
+    }
+
+    // Contact Number validation (required)
+    if (!formData.contactNumber) {
+      errorMessages.contactNumber = "Contact Number is required";
+      valid = false;
+    }
+
+    // Languages validation (required)
+    if (!formData.languages) {
+      errorMessages.languages = "Languages are required";
+      valid = false;
+    }
+
+    // Set error messages
+    setErrors(errorMessages);
+    return valid;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Perform validation before submitting
+    if (validateForm()) {
+      console.log("Form Data:", formData);
+      // Handle form submission logic
+    }
   };
 
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-xl font-bold mb-4">General Details Form</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4">
-        
-        {/* Name Fields */}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+        {/* Name Fields (Disabled) */}
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label htmlFor="firstName" className="block text-gray-700">
               First Name
             </label>
             <input
-              {...register('firstName', { required: 'First Name is required' })}
-              id="firstName"
+              type="text"
+              name="firstName"
+              value={user.firstName}
+              disabled
               className="w-full p-2 border rounded"
             />
-            {errors.firstName && <p className="text-red-600">{errors.firstName.message}</p>}
           </div>
-
           <div>
             <label htmlFor="middleName" className="block text-gray-700">
               Middle Name
             </label>
             <input
-              {...register('middleName')}
-              id="middleName"
+              type="text"
+              name="middleName"
+              value={user.middleName}
+              disabled
               className="w-full p-2 border rounded"
             />
           </div>
-
           <div>
             <label htmlFor="lastName" className="block text-gray-700">
               Last Name
             </label>
             <input
-              {...register('lastName', { required: 'Last Name is required' })}
-              id="lastName"
+              type="text"
+              name="lastName"
+              value={user.lastName}
+              disabled
               className="w-full p-2 border rounded"
             />
-            {errors.lastName && <p className="text-red-600">{errors.lastName.message}</p>}
           </div>
         </div>
 
-        {/* Roll No */}
+        {/* Roll No (Disabled) */}
         <div>
-          <label htmlFor="rollNo" className="block text-gray-700">Roll No</label>
+          <label htmlFor="rollNo" className="block text-gray-700">
+            Roll No
+          </label>
           <input
-            {...register('rollNo', { required: 'Roll Number is required' })}
-            id="rollNo"
+            type="text"
+            name="rollNo"
+            value={user.rollNo}
+            disabled
             className="w-full p-2 border rounded"
           />
-          {errors.rollNo && <p className="text-red-600">{errors.rollNo.message}</p>}
         </div>
 
-        {/* Course */}
+        {/* Course (Disabled) */}
         <div>
-          <label htmlFor="course" className="block text-gray-700">Course</label>
+          <label htmlFor="course" className="block text-gray-700">
+            Course
+          </label>
           <input
-            {...register('course', { required: 'Course is required' })}
-            id="course"
+            type="text"
+            name="course"
+            value={user.branch}
+            disabled
             className="w-full p-2 border rounded"
           />
-          {errors.course && <p className="text-red-600">{errors.course.message}</p>}
         </div>
 
-        {/* Gender */}
+        {/* Contact Number (Required) */}
         <div>
-          <label className="block text-gray-700">Gender</label>
-          <div className="flex space-x-4">
-            <label>
-              <input
-                {...register('gender', { required: 'Gender is required' })}
-                type="radio"
-                value="Male"
-                className="mr-2"
-              />
-              Male
-            </label>
-            <label>
-              <input
-                {...register('gender', { required: 'Gender is required' })}
-                type="radio"
-                value="Female"
-                className="mr-2"
-              />
-              Female
-            </label>
-            <label>
-              <input
-                {...register('gender', { required: 'Gender is required' })}
-                type="radio"
-                value="Other"
-                className="mr-2"
-              />
-              Other
-            </label>
-          </div>
-          {errors.gender && <p className="text-red-600">{errors.gender.message}</p>}
-        </div>
-
-        {/* Date of Birth */}
-        <div>
-          <label htmlFor="dob" className="block text-gray-700">Date of Birth</label>
+          <label htmlFor="contactNumber" className="block text-gray-700">
+            Contact Number
+          </label>
           <input
-            {...register('dob', { required: 'Date of Birth is required' })}
-            type="date"
-            id="dob"
+            type="text"
+            name="contactNumber"
+            value={formData.contactNumber}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
+            required
           />
-          {errors.dob && <p className="text-red-600">{errors.dob.message}</p>}
+          {errors.contactNumber && <p className="text-red-600">{errors.contactNumber}</p>}
         </div>
 
-        {/* Blood Group */}
+        {/* Email (Required) */}
         <div>
-          <label htmlFor="bloodGroup" className="block text-gray-700">Blood Group</label>
-          <select
-            {...register('bloodGroup', { required: 'Blood Group is required' })}
-            id="bloodGroup"
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select Blood Group</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-          </select>
-          {errors.bloodGroup && <p className="text-red-600">{errors.bloodGroup.message}</p>}
-        </div>
-
-        {/* Known Languages */}
-        <div>
-          <label htmlFor="languages" className="block text-gray-700">Known Languages</label>
+          <label htmlFor="email" className="block text-gray-700">
+            Personal Email ( other than nirmauni ) *
+          </label>
           <input
-            {...register('languages', { required: 'Known Languages are required' })}
-            id="languages"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+          {errors.email && <p className="text-red-600">{errors.email}</p>}
+        </div>
+
+        {/* GitHub Link (Placeholder added) */}
+        <div>
+          <label htmlFor="githubLink" className="block text-gray-700">
+            GitHub Link *
+          </label>
+          <input
+            type="url"
+            name="githubLink"
+            value={formData.githubLink}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            placeholder="https://github.com/your-username"
+          />
+          {errors.githubLink && <p className="text-red-600">{errors.githubLink}</p>}
+        </div>
+
+        {/* Known Languages (Required) */}
+        <div>
+          <label htmlFor="languages" className="block text-gray-700">
+            Known Languages
+          </label>
+          <input
+            type="text"
+            name="languages"
+            value={formData.languages}
+            onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="e.g., English, Hindi"
+            required
           />
-          {errors.languages && <p className="text-red-600">{errors.languages.message}</p>}
+          {errors.languages && <p className="text-red-600">{errors.languages}</p>}
         </div>
 
-        {/* Brief Introduction */}
+        {/* Achievements */}
         <div>
-          <label htmlFor="introduction" className="block text-gray-700">Brief Introduction (Max 100 words)</label>
-          <textarea
-            {...register('introduction', {
-              required: 'Introduction is required',
-              maxLength: { value: 100, message: 'Max 100 words allowed' },
-            })}
-            id="introduction"
-            className="w-full p-2 border rounded"
-          />
-          {errors.introduction && <p className="text-red-600">{errors.introduction.message}</p>}
+          <label className="block text-gray-700">Achievements</label>
+          {formData.achievements.map((achievement, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={achievement}
+                onChange={(e) => handleAchievementChange(index, e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder={`Achievement ${index + 1}`}
+              />
+              <button
+                type="button"
+                onClick={() => removeAchievementField(index)}
+                className="text-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addAchievementField}
+            className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          >
+            Add Achievement
+          </button>
         </div>
 
-        {/* Profile Photo */}
+        {/* Skills */}
         <div>
-          <label htmlFor="profilePhoto" className="block text-gray-700">Profile Photo</label>
-          <input
-            {...register('profilePhoto', { required: 'Profile photo is required' })}
-            type="file"
-            id="profilePhoto"
-            className="w-full p-2 border rounded"
-          />
-          {errors.profilePhoto && <p className="text-red-600">{errors.profilePhoto.message}</p>}
+          <label className="block text-gray-700">Skills</label>
+          {formData.skills.map((skill, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={skill}
+                onChange={(e) => handleSkillChange(index, e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder={`Skill ${index + 1}`}
+              />
+              <button
+                type="button"
+                onClick={() => removeSkillField(index)}
+                className="text-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addSkillField}
+            className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          >
+            Add Skill
+          </button>
         </div>
 
         {/* Submit Button */}
-        <div className="my-6">
-          <button type="submit" className="bg-primary-dark text-white px-4 py-2 rounded hover:bg-primary-darker">
-            Submit
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="w-full bg-primary text-white py-2 rounded hover:bg-blue-700"
+        >
+          Submit
+        </button>
       </form>
     </div>
   );

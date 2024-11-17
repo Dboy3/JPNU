@@ -69,7 +69,7 @@ function App() {
             <Route path="/d/resumes" element={<Resume />} />
             <Route path="/d/editprofile" element={<Editprofile />}>
               <Route path="" element={<GeneralDetailsForm />} />
-              <Route path="academic" element={<AcademicDetailsForm />} />
+              {/* <Route path="academic" element={<AcademicDetailsForm />} /> */}
               <Route path="experience" element={<ExperienceDetailFrom />} />
               <Route path="projects" element={<ProjectDetialForm />} />
             </Route>

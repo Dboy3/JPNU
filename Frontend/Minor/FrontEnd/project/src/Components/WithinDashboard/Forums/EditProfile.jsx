@@ -29,7 +29,7 @@ const Editprofile = () => {
         <div className="w-1/5 bg-primary-lightest rounded-lg text-white p-4">
           {/* <h2 className="text-xl font-bold mb-4">Job Management Portal</h2> */}
           <nav className="space-y-3">
-            {["general", "academic", "experience", "projects"].map(
+            {["general", "experience", "projects"].map(
               (section) => (
                 <button
                   key={section}

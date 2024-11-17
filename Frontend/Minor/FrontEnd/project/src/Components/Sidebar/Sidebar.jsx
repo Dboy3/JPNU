@@ -11,7 +11,7 @@ import {
 const pages = [
   { name: "Home", icon: FaHome, path: "/" },
   { name: "Jobs", icon: FaBriefcase, path: "/d/jobs" },
-  { name: "Forums", icon: FaUsers, path: "/d/editprofile" },
+  { name: "EditProfile", icon: FaUsers, path: "/d/editprofile" },
   { name: "Resumes", icon: FaFileAlt, path: "/d/resumes" },
 ];
 

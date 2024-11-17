@@ -1,85 +1,172 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
-import { useForm } from "react-hook-form"; // Import react-hook-form
 
 const ProjectDetailForm = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "Ecommerce-FullStack",
-      link: "https://github.com/Dboy3/Project",
-      dates: "Jun 22, 2024 - Jul 18, 2024",
-      teamSize: 1,
-      mentor: "self",
-      techStack: ["MongoDB", "ReactJs", "Redux", "Express.js", "Javascript"],
-      description:
-        "A full-stack e-commerce platform with advanced features, including Redux Toolkit for state management.",
-    },
-    {
-      id: 2,
-      title: "Hypersepectral Image Classification",
-      link: "https://github.com/Dboy3/Project",
-      dates: "Jun 22, 2023 - Jul 18, 2023",
-      teamSize: 1,
-      mentor: "self",
-      techStack: ["CNN" , "Image Classification" , "EDA" , "Python" , "Numpy" , "Panda"],
-      description:
-        "A full-stack e-commerce platform with advanced features, including Redux Toolkit for state management.",
-    },
-  ]);
-
+  const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
+  // Form state
+  const [formData, setFormData] = useState({
+    title: "",
+    link: "",
+    teamSize: "",
+    mentor: "",
+    techStack: "",
+    description: "",
+  });
+
+  const [formErrors, setFormErrors] = useState({
+    link: "",
+    teamSize: "",
+  });
+
+  // Fetch projects on load
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("/api/projects");
+      const data = await response.json();
+      setProjects(data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
 
   const handleAddProject = () => {
     setCurrentProject(null);
-    reset();
+    setFormData({
+      title: "",
+      link: "",
+      teamSize: "",
+      mentor: "",
+      techStack: "",
+      description: "",
+    });
+    setFormErrors({});
     setShowForm(true);
   };
 
   const handleEditProject = (project) => {
     setCurrentProject(project);
-    reset({
+    setFormData({
       title: project.title,
       link: project.link,
-      dates: project.dates,
       teamSize: project.teamSize,
       mentor: project.mentor,
       techStack: project.techStack.join(", "),
       description: project.description,
     });
+    setFormErrors({});
     setShowForm(true);
   };
 
-  const handleDeleteProject = (id) => {
-    setProjects(projects.filter((project) => project.id !== id));
+  const handleDeleteProject = async (id) => {
+    try {
+      await fetch(`/api/projects/${id}`, {
+        method: "DELETE",
+      });
+      setProjects(projects.filter((project) => project.id !== id));
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
   };
 
-  const onSubmit = (data) => {
-    const newProject = {
-      id: currentProject ? currentProject.id : Date.now(),
-      ...data,
-      techStack: data.techStack.split(","),
-    };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
-    if (currentProject) {
-      setProjects(
-        projects.map((proj) =>
-          proj.id === currentProject.id ? newProject : proj
-        )
-      );
-    } else {
-      setProjects([...projects, newProject]);
+  const validateForm = () => {
+    const errors = {};
+
+    // Title validation
+    if (!formData.title.trim()) {
+      errors.title = "Project title is required.";
     }
 
-    setShowForm(false);
+    // Description validation
+    if (!formData.description.trim()) {
+      errors.description = "Project description is required.";
+    }
+
+    // Tech Stack validation
+    if (!formData.techStack.trim()) {
+      errors.techStack = "Tech stack is required.";
+    }
+
+    // Link validation (optional but valid if provided)
+    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+    if (formData.link && !urlRegex.test(formData.link)) {
+      errors.link = "Please enter a valid URL.";
+    }
+
+    // Team size validation (optional)
+    if (
+      formData.teamSize &&
+      (formData.teamSize < 0 || formData.teamSize > 40)
+    ) {
+      errors.teamSize = "Team size must be between 0 and 40.";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
+    const { title, link, teamSize, mentor, techStack, description } = formData;
+    const projectData = {
+      title,
+      link,
+      teamSize,
+      mentor,
+      techStack: techStack.split(",").map((tech) => tech.trim()),
+      description,
+    };
+
+    try {
+      if (currentProject) {
+        // Update project
+        const response = await fetch(`/api/projects/${currentProject.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectData),
+        });
+        const updatedProject = await response.json();
+        setProjects(
+          projects.map((proj) =>
+            proj.id === currentProject.id ? updatedProject : proj
+          )
+        );
+      } else {
+        // Add new project
+        const response = await fetch("/api/projects", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectData),
+        });
+        const newProject = await response.json();
+        setProjects([...projects, newProject]);
+      }
+      setShowForm(false);
+    } catch (error) {
+      console.error("Error saving project:", error);
+    }
   };
 
   return (
@@ -106,7 +193,12 @@ const ProjectDetailForm = () => {
               <div className="flex justify-between">
                 <div>
                   <h3 className="text-xl font-semibold">{project.title}</h3>
-                  <a href={project.link} className="text-blue-500" target="_blank" rel="noreferrer">
+                  <a
+                    href={project.link}
+                    className="text-blue-500"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     {project.link}
                   </a>
                   <p className="text-gray-500">{project.dates}</p>
@@ -152,17 +244,20 @@ const ProjectDetailForm = () => {
             <h2 className="text-2xl mb-4">
               {currentProject ? "Edit Project" : "Add New Project"}
             </h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Project Title
                 </label>
                 <input
-                  {...register("title", { required: true })}
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
                   className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter the project title"
                 />
-                {errors.title && (
-                  <p className="text-red-500 text-sm">Title is required</p>
+                {formErrors.title && (
+                  <p className="text-red-500 text-sm">{formErrors.title}</p>
                 )}
               </div>
 
@@ -171,26 +266,15 @@ const ProjectDetailForm = () => {
                   Project Link
                 </label>
                 <input
-                  {...register("link", { required: true })}
+                  name="link"
+                  value={formData.link}
+                  onChange={handleInputChange}
                   type="url"
                   className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter the project URL"
                 />
-                {errors.link && (
-                  <p className="text-red-500 text-sm">Link is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Dates (e.g., Feb 5, 2023 - Aug 17, 2023)
-                </label>
-                <input
-                  {...register("dates", { required: true })}
-                  type="text"
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.dates && (
-                  <p className="text-red-500 text-sm">Dates are required</p>
+                {formErrors.link && (
+                  <p className="text-red-500 text-sm">{formErrors.link}</p>
                 )}
               </div>
 
@@ -199,24 +283,15 @@ const ProjectDetailForm = () => {
                   Team Size
                 </label>
                 <input
-                  {...register("teamSize", { required: true })}
+                  name="teamSize"
+                  value={formData.teamSize}
+                  onChange={handleInputChange}
                   type="number"
                   className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter team size (between 0 and 40)"
                 />
-                {errors.teamSize && (
-                  <p className="text-red-500 text-sm">Team Size is required</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Mentor</label>
-                <input
-                  {...register("mentor", { required: true })}
-                  type="text"
-                  className="border px-4 py-2 rounded w-full"
-                />
-                {errors.mentor && (
-                  <p className="text-red-500 text-sm">Mentor is required</p>
+                {formErrors.teamSize && (
+                  <p className="text-red-500 text-sm">{formErrors.teamSize}</p>
                 )}
               </div>
 
@@ -225,34 +300,42 @@ const ProjectDetailForm = () => {
                   Tech Stack (comma separated)
                 </label>
                 <input
-                  {...register("techStack", { required: true })}
+                  name="techStack"
+                  value={formData.techStack}
+                  onChange={handleInputChange}
                   type="text"
                   className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter the tech stack used"
                 />
-                {errors.techStack && (
-                  <p className="text-red-500 text-sm">Tech Stack is required</p>
+                {formErrors.techStack && (
+                  <p className="text-red-500 text-sm">{formErrors.techStack}</p>
                 )}
               </div>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Description
+                  Project Description
                 </label>
                 <textarea
-                  {...register("description", { required: true })}
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows="6"
                   className="border px-4 py-2 rounded w-full"
-                  rows="4"
+                  placeholder="Enter a brief description of the project (around 200 words)"
                 />
-                {errors.description && (
-                  <p className="text-red-500 text-sm">Description is required</p>
+                {formErrors.description && (
+                  <p className="text-red-500 text-sm">
+                    {formErrors.description}
+                  </p>
                 )}
               </div>
 
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
-                  className="bg-gray-300 px-4 py-2 rounded"
                   onClick={() => setShowForm(false)}
+                  className="bg-gray-300 px-4 py-2 rounded"
                 >
                   Cancel
                 </button>
@@ -260,7 +343,7 @@ const ProjectDetailForm = () => {
                   type="submit"
                   className="bg-primary text-white px-4 py-2 rounded"
                 >
-                  {currentProject ? "Update" : "Add"}
+                  {currentProject ? "Update Project" : "Add Project"}
                 </button>
               </div>
             </form>

@@ -1,33 +1,133 @@
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { signupUser, resetError } from './user';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    role: "",
+    rollNo: "",
+    cgpa: "",
+    branch: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { loading, error, user } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    if (user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  useEffect(() => {
-    dispatch(resetError());
-  }, [dispatch]);
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-  const onSubmit = (data) => {
-    console.log(data);
-    
-    if (data.password !== data.confirmPassword) {
-      alert('Passwords do not match.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate required fields
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.phoneNumber ||
+      !formData.role ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("All fields are required.");
+      setIsErrorModalOpen(true);
       return;
     }
-    dispatch(signupUser(data));
+
+    // Student-specific validation
+    if (formData.role === "Student") {
+      if (!formData.cgpa || !formData.rollNo || !formData.branch) {
+        setError(
+          "CGPA, Roll Number, and Branch must be provided for Students."
+        );
+        setIsErrorModalOpen(true);
+        return;
+      }
+      if (formData.cgpa < 0 || formData.cgpa > 10) {
+        setError("CGPA must be between 0 and 10.");
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      if (!formData.email.endsWith("@nirmauni.ac.in")) {
+        setError("Student email must end with @nirmauni.ac.in");
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Check if the roll number matches the prefix of the email
+      const emailPrefix = formData.email.split("@")[0];
+      if (emailPrefix !== formData.rollNo) {
+        setError("Roll number and email prefix must match.");
+        setIsErrorModalOpen(true);
+        return;
+      }
+      if (formData.phoneNumber.length !== 10) {
+        setError("Phone number must be exactly 10 digits.");
+        setIsErrorModalOpen(true);
+        return;
+      }
+    }
+
+    // Password validation
+    if (formData.password.length < 8 || formData.password.length > 15) {
+      setError("Password must be between 8 and 15 characters.");
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    console.log(formData);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        navigate("/login");
+      } else {
+        setError(data.message || "An error occurred during sign-up.");
+        setIsErrorModalOpen(true);
+      }
+    } catch (error) {
+      setError("Error connecting to the server.");
+      setIsErrorModalOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const closeErrorModal = () => {
+    setIsErrorModalOpen(false);
   };
 
   return (
@@ -41,131 +141,267 @@ const SignupPage = () => {
       <div className="w-full md:w-2/3 flex items-center justify-center p-6 lg:p-10">
         <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 mt-5 h-full max-h-screen overflow-y-auto">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">Sign Up</h2>
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name */}
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                First Name
+              </label>
               <input
                 id="firstName"
+                name="firstName"
                 type="text"
-                {...register('firstName', { required: 'First name is required' })}
+                value={formData.firstName}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
-              {errors.firstName && <span className="text-red-500">{errors.firstName.message}</span>}
             </div>
 
             {/* Middle Name */}
             <div>
-              <label htmlFor="middleName" className="block text-sm font-medium text-gray-700">Middle Name</label>
+              <label
+                htmlFor="middleName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Middle Name
+              </label>
               <input
                 id="middleName"
+                name="middleName"
                 type="text"
-                {...register('middleName')}
+                value={formData.middleName}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
             </div>
 
             {/* Last Name */}
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Last Name
+              </label>
               <input
                 id="lastName"
+                name="lastName"
                 type="text"
-                {...register('lastName', { required: 'Last name is required' })}
+                value={formData.lastName}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
-              {errors.lastName && <span className="text-red-500">{errors.lastName.message}</span>}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                id="email"
-                type="email"
-                {...register('email', { required: 'Email is required' })}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
-              />
-              {errors.email && <span className="text-red-500">{errors.email.message}</span>}
             </div>
 
             {/* Phone Number */}
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number
+              </label>
               <input
                 id="phoneNumber"
+                name="phoneNumber"
                 type="tel"
-                {...register('phoneNumber', { required: 'Phone number is required' })}
+                value={formData.phoneNumber}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
-              {errors.phoneNumber && <span className="text-red-500">{errors.phoneNumber.message}</span>}
             </div>
 
             {/* Role */}
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Role
+              </label>
               <select
                 id="role"
-                {...register('role', { required: 'Role is required' })}
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               >
                 <option value="">Select a role</option>
                 <option value="SPC">SPC</option>
                 <option value="Student">Student</option>
                 <option value="Admin">Admin</option>
-                <option value="Academic Coordinator">Academic Coordinator</option>
+                <option value="Academic Coordinator">
+                  Academic Coordinator
+                </option>
               </select>
-              {errors.role && <span className="text-red-500">{errors.role.message}</span>}
             </div>
 
-            {/* Roll Number (Optional) */}
-            {watch('role') === 'Student' && (
-              <div>
-                <label htmlFor="rollNo" className="block text-sm font-medium text-gray-700">Roll Number</label>
-                <input
-                  id="rollNo"
-                  type="text"
-                  {...register('rollNo')}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
-                />
-              </div>
+            {/* Roll Number (For Students) */}
+            {formData.role === "Student" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="rollNo"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Roll Number
+                  </label>
+                  <input
+                    id="rollNo"
+                    name="rollNo"
+                    type="text"
+                    value={formData.rollNo}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
+                  />
+                </div>
+
+                {/* CGPA */}
+                <div>
+                  <label
+                    htmlFor="cgpa"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    CGPA
+                  </label>
+                  <input
+                    id="cgpa"
+                    name="cgpa"
+                    type="number"
+                    step="0.01" // Allows two decimal places
+                    min="0" // Minimum value is 0
+                    max="10" // Maximum value is 10
+                    value={formData.cgpa}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
+                  />
+                </div>
+
+                {/* Branch */}
+                <div>
+                  <label
+                    htmlFor="branch"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Branch
+                  </label>
+                  <select
+                    id="branch"
+                    name="branch"
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
+                  >
+                    <option value="">Select a branch</option>
+                    <option value="ee">Electrical Engineering (EE)</option>
+                    <option value="ec">
+                      Electronics and Communication (EC)
+                    </option>
+                    <option value="cse">
+                      Computer Science and Engineering (CSE)
+                    </option>
+                    <option value="it">Information Technology (IT)</option>
+                  </select>
+                </div>
+              </>
             )}
+
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
+              />
+            </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                {...register('password', { required: 'Password is required' })}
+                value={formData.password}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
-              {errors.password && <span className="text-red-500">{errors.password.message}</span>}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
-                {...register('confirmPassword', { required: 'Confirm password is required' })}
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-4 py-3"
               />
-              {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword.message}</span>}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-white py-3 rounded-lg mt-4"
-            >
-              {loading ? 'Signing up...' : 'Sign Up'}
-            </button>
+            {/* Submit Button */}
+            <div className="flex justify-center mt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-primary text-white rounded-md text-lg font-semibold shadow-md hover:bg-primary-dark"
+              >
+                {loading ? "Signing Up..." : "Sign Up"}
+              </button>
+            </div>
           </form>
+
+          {/* Go to Login Button */}
+          <div className="mt-4">
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full py-3 bg-gray-200 text-gray-800 rounded-md text-lg font-semibold shadow-md hover:bg-gray-300"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Error Modal */}
+      {isErrorModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm">
+            <h3 className="text-xl font-semibold text-red-500 mb-4">Error</h3>
+            <p>{error}</p>
+            <button
+              onClick={closeErrorModal}
+              className="mt-4 w-full bg-primary text-white py-2 rounded-md"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

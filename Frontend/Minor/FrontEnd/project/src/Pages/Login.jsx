@@ -9,7 +9,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-
   const loggedInUser = useSelector(selectUser);
   const loginError = useSelector(userError);
   const loginMessage = useSelector(userMessage);
@@ -18,13 +17,17 @@ const LoginPage = () => {
     dispatch(checkUser(data)); 
   };
 
-
   useEffect(() => {
     if (loginMessage === "Login successful") {
       console.log(loggedInUser);
       navigate("/");  
     }
   }, [loginMessage, navigate]);
+
+  // Function to navigate to signup page
+  const handleSignupRedirect = () => {
+    navigate("/signup");
+  };
 
   return (
     <div className="flex h-screen">
@@ -81,6 +84,16 @@ const LoginPage = () => {
               {loginError}
             </div>
           )}
+
+          {/* New User Button */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleSignupRedirect}
+              className="text-primary-dark hover:underline"
+            >
+              New User? Sign Up
+            </button>
+          </div>
         </div>
       </div>
     </div>

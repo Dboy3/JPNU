@@ -81,6 +81,8 @@ function StudentList() {
     }
 
     // Apply Branch filter (multiple branches selected)
+    console.log(student.branch);
+    console.log(selectedBranches);
     if (selectedBranches.length > 0) {
       matchesBranch = selectedBranches.includes(student.branch);
     }
@@ -136,7 +138,7 @@ function StudentList() {
         <div>
           <label className="block font-medium">Select Branches</label>
           <div className="flex space-x-3">
-            {["CSE", "EC", "EE"].map((branch) => (
+            {["cse", "ec", "ee"].map((branch) => (
               <label key={branch} className="flex items-center space-x-2">
                 <input
                   type="checkbox"

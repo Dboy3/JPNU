@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { selectUser } from "../../../../Pages/auth";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 function GeneralDetailsForm() {
   const user = useSelector(selectUser);
@@ -12,9 +13,9 @@ function GeneralDetailsForm() {
     lastName: user.lastName,
     rollNo: user.rollNo,
     course: user.branch,
-    languages: "",
-    achievements: [""],
-    skills: [""],
+    languages: [],
+    achievements: [],
+    skills: [],
     contactNumber: user.phoneNumber,
     email: "",
     githubLink: "",
@@ -27,62 +28,93 @@ function GeneralDetailsForm() {
     languages: "",
   });
 
-  // useEffect(() => {
-  //   // Fetch general details from the API
-  //   const fetchGeneralDetails = async () => {
-  //     try {
-  //       const response = await fetch("/api/getGeneralDetails", {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         credentials: "include",
-  //       });
+  useEffect(() => {
+    // Fetch general details from the API
+    const fetchGeneralDetails = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/profile/getdetails", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
 
-  //       const data = await response.json();
-  //       // the data oject is not empty
-  //       if (data && data.data) {
-  //         const {
-  //           firstName,
-  //           middleName,
-  //           lastName,
-  //           rollNo,
-  //           course,
-  //           languages,
-  //           achievements,
-  //           skills,
-  //           contact,
-  //           githublink,
-  //         } = data.data;
+        const data = await response.json();
 
-  //         setFormData({
-  //           firstName: firstName || "",
-  //           middleName: middleName || "",
-  //           lastName: lastName || "",
-  //           rollNo: rollNo || "",
-  //           course: course || "",
-  //           languages: languages || "",
-  //           achievements: achievements || [""],
-  //           skills: skills || [""],
-  //           contactNumber: contact || "",
-  //           email: "", // Update based on your business logic
-  //           githubLink: githublink || "",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching general details:", error);
-  //     }
-  //   };
+        if (data && data.data) {
+          // If data is returned from the backend, populate formData with it
+          const {
+            firstName,
+            middleName,
+            lastName,
+            rollNo,
+            course,
+            languages,
+            achievements,
+            skills,
+            contactNumber,
+            githublink,
+            email
+          } = data.data;
 
-  //   fetchGeneralDetails();
-  // }, []);
+
+
+          setFormData({
+            firstName: firstName || "",
+            middleName: middleName || "",
+            lastName: lastName || "",
+            rollNo: rollNo || "",
+            course: course || "",
+            languages: languages || [],
+            achievements: achievements || [],
+            skills: skills || [],
+            contactNumber: contactNumber || "",
+            email: email || "", // Update based on your business logic
+            githubLink: githublink || "",
+          });
+
+          console.log("from the useEffect ",formData);
+        } else {
+          // If data.data is empty, use the default user values
+          setFormData({
+            firstName: user.firstName,
+            middleName: user.middleName,
+            lastName: user.lastName,
+            rollNo: user.rollNo,
+            course: user.branch,
+            languages: [],
+            achievements: [],
+            skills: [],
+            contactNumber: user.phoneNumber,
+            email: "",
+            githubLink: "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching general details:", error);
+      }
+    };
+
+    fetchGeneralDetails();
+  }, [user]);
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "languages") {
+      setFormData((prev) => ({
+        ...prev,
+        languages: value.split(",").map((lang) => lang.trim()),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleAchievementChange = (index, value) => {
@@ -182,7 +214,7 @@ function GeneralDetailsForm() {
     // Perform validation before submitting
     if (validateForm()) {
       try {
-        const response = await fetch("/api/createGeneralDetails", {
+        const response = await fetch("http://localhost:8000/api/profile/createdetails", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -201,6 +233,8 @@ function GeneralDetailsForm() {
         console.error("Error submitting general details:", error);
       }
     }
+
+    
   };
 
   return (
@@ -327,6 +361,8 @@ function GeneralDetailsForm() {
           )}
         </div>
 
+
+
         {/* Known Languages (Required) */}
         <div>
           <label htmlFor="languages" className="block text-gray-700">
@@ -335,7 +371,7 @@ function GeneralDetailsForm() {
           <input
             type="text"
             name="languages"
-            value={formData.languages}
+            value={formData.languages.join(", ")}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="e.g., English, Hindi"

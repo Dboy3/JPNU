@@ -20,30 +20,27 @@ const extractUserIdFromToken = (req, res) => {
 };
 
 // Controller to insert general details
+
 export const createGeneralDetails = async (req, res) => {
   try {
+    // Destructure and validate required fields from request body
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
-    console.log(userId);
-    if (!userId) return; // If token is invalid or missing, stop further execution
-
     const {
       firstName,
-      middleName,
       lastName,
       rollNo,
       course,
+      contactNumber,
+      middleName,
+      skills,
       languages,
       achievements,
-      skills,
-      contactNumber,
-      email,
-      githubLink
+      githublink,
+      email
     } = req.body;
 
-    console.log(req.body);
-
     // Check if all required fields are provided
-    if (!firstName || !lastName || !rollNo || !course || !contactNumber) {
+    if (!userId || !firstName || !lastName || !rollNo || !course || !contactNumber || !email) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
@@ -62,12 +59,13 @@ export const createGeneralDetails = async (req, res) => {
       existingEntry.middleName = middleName || existingEntry.middleName;
       existingEntry.rollNo = rollNo;
       existingEntry.course = course;
-      existingEntry.skills = skills.length ? skills : existingEntry.skills;
+      existingEntry.skills = skills || existingEntry.skills;
       existingEntry.languages = languages || existingEntry.languages;
-      existingEntry.achievements = achievements.length ? achievements : existingEntry.achievements;
-      existingEntry.contact = contactNumber;
-      existingEntry.githubLink = githubLink || existingEntry.githubLink;
+      existingEntry.achievements = achievements || existingEntry.achievements;
+      existingEntry.contactNumber = contactNumber;
+      existingEntry.githublink = githublink || existingEntry.githublink;
       existingEntry.email = email || existingEntry.email;
+
 
       await existingEntry.save();
       return res.status(200).json({ message: 'General details updated successfully.', data: existingEntry });
@@ -80,12 +78,12 @@ export const createGeneralDetails = async (req, res) => {
         middleName,
         rollNo,
         course,
-        skills: skills.length ? skills : undefined,
-        languages: languages || undefined,
-        achievements: achievements.length ? achievements : undefined,
-        contact,
-        githubLink,
+        skills,
+        languages,
+        achievements,
+        contactNumber,
         email,
+        githublink,
       });
 
       await newEntry.save();
@@ -96,11 +94,11 @@ export const createGeneralDetails = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while adding/updating general details.', error });
   }
 };
-
 // Controller to update general details
 export const updateGeneralDetails = async (req, res) => {
   try {
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    console.log(userId);
     if (!userId) return; // If token is invalid or missing, stop further execution
 
     const details = req.body;
@@ -153,10 +151,10 @@ export const getGeneralDetails = async (req, res) => {
 };
 
 export const addProject = async (req, res) =>{
+  const userId = extractUserIdFromToken(req, res); 
   try {
     // Destructure and validate required fields from the request body
     const {
-      userId,
       title,
       link,
       teamSize,
@@ -165,24 +163,25 @@ export const addProject = async (req, res) =>{
     } = req.body;
 
     // Check if all required fields are provided
-    if (!userId || !title || !teamSize || !description) {
+    if (!userId || !title || !techStack || !description ) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
     // Check if team size is valid
-    if (teamSize < 1) {
+    if (teamSize && teamSize < 1) {
       return res.status(400).json({ message: 'Team size must be at least 1.' });
     }
 
     // Check if an entry with the same userId and title already exists
-    const existingEntry = await ProjectDetails.findOne({ userId, title });
+    const existingEntry = await projectDetails.findOne({ userId, title });
 
     if (existingEntry) {
       // If entry exists, update it
+      existingEntry.title = title;
       existingEntry.link = link || existingEntry.link;
-      existingEntry.teamSize = teamSize;
+      existingEntry.teamSize = teamSize || existingEntry.teamSize;
       existingEntry.techStack = techStack || existingEntry.techStack;
-      existingEntry.description = description;
+      existingEntry.description = description || existingEntry.description;
 
       await existingEntry.save();
       return res.status(200).json({ message: 'Project details updated successfully.', data: existingEntry });

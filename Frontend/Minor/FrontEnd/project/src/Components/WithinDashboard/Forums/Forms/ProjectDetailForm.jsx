@@ -11,8 +11,7 @@ const ProjectDetailForm = () => {
     title: "",
     link: "",
     teamSize: "",
-    mentor: "",
-    techStack: "",
+    techStack: [],
     description: "",
   });
 
@@ -23,7 +22,7 @@ const ProjectDetailForm = () => {
 
   // Fetch projects on load
   useEffect(() => {
-    fetchProjects();
+    // fetchProjects();
   }, []);
 
   const fetchProjects = async () => {
@@ -37,13 +36,13 @@ const ProjectDetailForm = () => {
   };
 
   const handleAddProject = () => {
+    console.log(formData);
     setCurrentProject(null);
     setFormData({
       title: "",
       link: "",
       teamSize: "",
-      mentor: "",
-      techStack: "",
+      techStack: [],
       description: "",
     });
     setFormErrors({});
@@ -56,7 +55,6 @@ const ProjectDetailForm = () => {
       title: project.title,
       link: project.link,
       teamSize: project.teamSize,
-      mentor: project.mentor,
       techStack: project.techStack.join(", "),
       description: project.description,
     });
@@ -138,13 +136,14 @@ const ProjectDetailForm = () => {
     try {
       if (currentProject) {
         // Update project
-        const response = await fetch(`/api/projects/${currentProject.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(projectData),
-        });
+        // const response = await fetch(`/api/projects/${currentProject.id}`, {
+        //   method: "PUT",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify(projectData),
+        //   credentials : "include"
+        // });
         const updatedProject = await response.json();
         setProjects(
           projects.map((proj) =>
@@ -153,13 +152,15 @@ const ProjectDetailForm = () => {
         );
       } else {
         // Add new project
-        const response = await fetch("/api/projects", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(projectData),
-        });
+        console.log(newProject);
+        // const response = await fetch("/api/projects", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify(projectData),
+        //   credentials : "include"
+        // });
         const newProject = await response.json();
         setProjects([...projects, newProject]);
       }

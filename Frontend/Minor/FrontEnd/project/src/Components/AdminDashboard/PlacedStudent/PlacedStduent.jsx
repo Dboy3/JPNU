@@ -100,7 +100,6 @@ function PlacedStudent() {
         </button>
       </div>
 
-      {/* Students Table */}
       <div>
         {students.length > 0 ? (
           <table className="min-w-full table-auto">
@@ -141,13 +140,9 @@ function PlacedStudent() {
                   <td className="p-2">
                     <button
                       onClick={() => handlePlacementChange(student._id, student.placed)}
-                      className={`px-4 py-2 rounded-md ${
-                        student.placed
-                          ? "text-green-400 hover:bg-green-600 hover:text-white"
-                          : "text-red-400 hover:bg-red-600 hover:text-white"
-                      } text-white`}
+                      className={`px-4 py-2 rounded-md text-black bg-primary-lightest hover:bg-primary-light`}
                     >
-                      {student.placed ? "Placed" : "Unplaced"}
+                      {student.placed ? "Unplaced" : "placed"}
                     </button>
                   </td>
                 </tr>

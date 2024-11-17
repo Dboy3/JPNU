@@ -1,12 +1,11 @@
-
 import jwt from "jsonwebtoken";
-import {GeneralDetails,projectDetails} from "../models/Profile.model.js";
+import { GeneralDetails, projectDetails } from "../models/Profile.model.js";
 
 // Helper function to extract userId from the JWT token in the cookie
 const extractUserIdFromToken = (req, res) => {
   const token = req.cookies.token; // Retrieve token from cookies
   if (!token) {
-    res.status(401).json({ error: "Unauthorized: No token provided" });
+    // res.status(401).json({ error: "Unauthorized: No token provided" });
     return null;
   }
 
@@ -14,17 +13,34 @@ const extractUserIdFromToken = (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
     return decoded.userId; // Extract userId from token
   } catch (err) {
-    res.status(403).json({ error: "Invalid or expired token" });
+    // res.status(403).json({ error: "Invalid or expired token" });
     return null;
   }
 };
+// const extractUserIdFromToken = (req, res) => {
+//   const token = req.cookies.token; // Retrieve token from cookies
+//   if (!token) {
+//     // res.status(401).json({ error: "Unauthorized: No token provided" });
+//     return null;
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+//     return decoded.userId; // Extract userId from token
+//   } catch (err) {
+//     // res.status(403).json({ error: "Invalid or expired token" });
+//     return null;
+//   }
+// };
 
 // Controller to insert general details
-
 export const createGeneralDetails = async (req, res) => {
   try {
     // Destructure and validate required fields from request body
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
     const {
       firstName,
       lastName,
@@ -35,18 +51,31 @@ export const createGeneralDetails = async (req, res) => {
       skills,
       languages,
       achievements,
-      githublink,
-      email
+      githubLink,
+      email,
     } = req.body;
 
+    console.log(req.body, "check");
     // Check if all required fields are provided
-    if (!userId || !firstName || !lastName || !rollNo || !course || !contactNumber || !email) {
-      return res.status(400).json({ message: 'All required fields must be provided.' });
+    if (
+      !userId ||
+      !firstName ||
+      !lastName ||
+      !rollNo ||
+      !course ||
+      !contactNumber ||
+      !email
+    ) {
+      return res
+        .status(400)
+        .json({ message: "All required fields must be provided." });
     }
 
     // Validate contact number
     if (!/^[0-9]{10}$/.test(contactNumber)) {
-      return res.status(400).json({ message: 'Contact number must be a valid 10-digit number.' });
+      return res
+        .status(400)
+        .json({ message: "Contact number must be a valid 10-digit number." });
     }
 
     // Check if an entry with the same userId already exists
@@ -63,12 +92,14 @@ export const createGeneralDetails = async (req, res) => {
       existingEntry.languages = languages || existingEntry.languages;
       existingEntry.achievements = achievements || existingEntry.achievements;
       existingEntry.contactNumber = contactNumber;
-      existingEntry.githublink = githublink || existingEntry.githublink;
+      existingEntry.githubLink = githubLink || existingEntry.githubLink;
       existingEntry.email = email || existingEntry.email;
 
-
       await existingEntry.save();
-      return res.status(200).json({ message: 'General details updated successfully.', data: existingEntry });
+      return res.status(200).json({
+        message: "General details updated successfully.",
+        data: existingEntry,
+      });
     } else {
       // If no entry exists, create a new one
       const newEntry = new GeneralDetails({
@@ -83,21 +114,30 @@ export const createGeneralDetails = async (req, res) => {
         achievements,
         contactNumber,
         email,
-        githublink,
+        githubLink,
       });
 
       await newEntry.save();
-      return res.status(201).json({ message: 'General details added successfully.', data: newEntry });
+      return res.status(201).json({
+        message: "General details added successfully.",
+        data: newEntry,
+      });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'An error occurred while adding/updating general details.', error });
+    res.status(500).json({
+      message: "An error occurred while adding/updating general details.",
+      error,
+    });
   }
 };
 // Controller to update general details
 export const updateGeneralDetails = async (req, res) => {
   try {
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
     console.log(userId);
     if (!userId) return; // If token is invalid or missing, stop further execution
 
@@ -114,12 +154,10 @@ export const updateGeneralDetails = async (req, res) => {
     }
 
     // Return success response
-    res
-      .status(200)
-      .json({
-        message: "General details updated successfully.",
-        data: updatedData,
-      });
+    res.status(200).json({
+      message: "General details updated successfully.",
+      data: updatedData,
+    });
   } catch (error) {
     console.error(error);
     res
@@ -132,6 +170,9 @@ export const updateGeneralDetails = async (req, res) => {
 export const getGeneralDetails = async (req, res) => {
   try {
     const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
     if (!userId) return; // If token is invalid or missing, stop further execution
 
     // Retrieve user data based on userId
@@ -150,57 +191,125 @@ export const getGeneralDetails = async (req, res) => {
   }
 };
 
-export const addProject = async (req, res) =>{
-  const userId = extractUserIdFromToken(req, res); 
+export const addProject = async (req, res) => {
   try {
-    // Destructure and validate required fields from the request body
-    const {
-      title,
-      link,
-      teamSize,
-      techStack,
-      description,
-    } = req.body;
-
-    // Check if all required fields are provided
-    if (!userId || !title || !techStack || !description ) {
-      return res.status(400).json({ message: 'All required fields must be provided.' });
+    // Extract JWT token from cookies
+    const userId = extractUserIdFromToken(req, res); // Extract userId from tok
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
 
-    // Check if team size is valid
-    if (teamSize && teamSize < 1) {
-      return res.status(400).json({ message: 'Team size must be at least 1.' });
+    const { projects } = req.body;
+    console.log(projects);
+
+    // change -note
+    // if (!Array.isArray(projects) || projects.length === 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Projects array is required and cannot be empty." });
+    // }
+
+    if (!Array.isArray(projects) || projects.length === 0) {
+      await projectDetails.deleteOne({ userId });
+      return res.status(201).json({ message: "" });
     }
 
-    // Check if an entry with the same userId and title already exists
-    const existingEntry = await projectDetails.findOne({ userId, title });
+    const projectTitles = new Set(); // To keep track of titles and avoid duplicates
+    for (const project of projects) {
+      const { title, link, description } = project;
+
+      // Validate required fields
+      if (!title || !description) {
+        return res.status(400).json({
+          message: "Each project must have title, techStack, and description.",
+        });
+      }
+
+      // Check for duplicate titles
+      if (projectTitles.has(title)) {
+        return res.status(400).json({
+          message: `Duplicate project title found: '${title}'. Each project must have a unique title.`,
+        });
+      }
+      projectTitles.add(title); // Add title to the set
+    }
+
+    // Check if an entry for the userId already exists
+    const existingEntry = await projectDetails.findOne({ userId });
 
     if (existingEntry) {
-      // If entry exists, update it
-      existingEntry.title = title;
-      existingEntry.link = link || existingEntry.link;
-      existingEntry.teamSize = teamSize || existingEntry.teamSize;
-      existingEntry.techStack = techStack || existingEntry.techStack;
-      existingEntry.description = description || existingEntry.description;
-
+      // If entry exists, overwrite the projects array
+      existingEntry.projects = projects;
       await existingEntry.save();
-      return res.status(200).json({ message: 'Project details updated successfully.', data: existingEntry });
+      return res.status(200).json({
+        message: "Projects array updated successfully.",
+        data: existingEntry,
+      });
     } else {
       // If no entry exists, create a new one
-      const newEntry = new projectDetails({
-        userId,
-        title,
-        link,
-        teamSize,
-        techStack,
-        description,
-      });
-
+      const newEntry = new projectDetails({ userId, projects });
       await newEntry.save();
-      return res.status(201).json({ message: 'Project details added successfully.', data: newEntry });
+      return res.status(201).json({
+        message: "Projects added successfully.",
+        data: newEntry,
+      });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'An error occurred while adding/updating project details.', error });
+    res.status(500).json({
+      message: "An error occurred while adding/updating projects.",
+      error: error.message,
+    });
   }
 };
+
+export const getProjectDetails = async (req, res) => {
+  try {
+    const userId = extractUserIdFromToken(req, res); // Extract userId from token
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    // Retrieve user data based on userId
+    const userData = await projectDetails.findOne({ userId });
+    if (!userData) {
+      return res.status(200).json({ data: {} }); // Return empty data if not found
+    }
+
+    // Return success response
+    res.status(200).json({ data: userData.projects });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving project details." });
+  }
+};
+
+export const isprofileComplete = async (req, res) => {
+  try {
+    const userId = extractUserIdFromToken(req, res);
+    console.log(userId);
+    if (userId == null) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    // Check in both schemas
+    const generalDetailsEntry = await GeneralDetails.findOne({ userId });
+    const projectDetailsEntry = await projectDetails.findOne({ userId });
+
+    if (generalDetailsEntry && projectDetailsEntry) {
+      return res
+        .status(200)
+        .json({ status: "OK", message: "Profile Complete" });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "NOT OK", message: "Profile is not Complete" });
+    }
+  } catch (error) {
+    console.error("Error checking userId:", error);
+    res.status(500).json({ status: "ERROR", message: "Internal server error" });
+  }
+};
+// --------------------------------------------------------------------------------------------

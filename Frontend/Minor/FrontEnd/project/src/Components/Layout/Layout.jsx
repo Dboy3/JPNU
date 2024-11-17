@@ -32,6 +32,22 @@ function Layout() {
       </div>
     );
   }
+
+  if (user?.placed) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+          <div className="bg-blue-200 text-blue-700 p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4">Already Placed</h2>
+            <p className="text-lg">
+              You are already placed and cannot apply for new positions. Please contact your admin for further assistance.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col h-screen ">
     <Navbar />

@@ -19,7 +19,11 @@ function GeneralDetailsForm() {
     contactNumber: user.phoneNumber,
     email: "",
     githubLink: "",
+    cgpa:user.cgpa,
   });
+
+  console.log({formData} , "INIT");
+  console.log(user.cgpa , "XXx");
 
   const [errors, setErrors] = useState({
     email: "",
@@ -44,7 +48,7 @@ function GeneralDetailsForm() {
         );
 
         const data = await response.json();
-        console.log("the data comming from api " , data);
+
         if (data && data.data) {
           // If data is returned from the backend, populate formData with it
           const {
@@ -57,22 +61,25 @@ function GeneralDetailsForm() {
             achievements,
             skills,
             contactNumber,
-            githubLink,
+            githublink,
+            cgpa,
             email,
           } = data.data;
 
+          console.log(data.data);
           setFormData({
-            firstName: firstName || user.firstName,
-            middleName: middleName || user.middleName,
-            lastName: lastName || user.lastName,
-            rollNo: rollNo || user.rollNo,
-            course: course || user.branch,
+            firstName: firstName || "",
+            middleName: middleName || "",
+            lastName: lastName || "",
+            rollNo: rollNo || "",
+            course: course || "",
             languages: languages || [],
             achievements: achievements || [],
             skills: skills || [],
             contactNumber: contactNumber || "",
             email: email || "", // Update based on your business logic
-            githubLink: githubLink || user.githubLink,
+            githubLink: githublink || "",
+            cgpa: cgpa || "",
           });
 
           console.log("from the useEffect ", formData);
@@ -89,7 +96,8 @@ function GeneralDetailsForm() {
             skills: [],
             contactNumber: user.phoneNumber,
             email: "",
-            githubLink: user.githubLink,
+            githubLink: "",
+            cgpa: user.cgpa,
           });
         }
       } catch (error) {
@@ -140,6 +148,19 @@ function GeneralDetailsForm() {
       ...prev,
       achievements: updatedAchievements,
     }));
+  };
+
+  // Handle CGPA input change with validation
+  const handleCgpaChange = (e) => {
+    const { value } = e.target;
+
+    // Ensure the value matches the pattern (up to two decimal places)
+    if (/^\d*(\.\d{0,2})?$/.test(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        cgpa: value,
+      }));
+    }
   };
 
   const handleSkillChange = (index, value) => {
@@ -195,6 +216,21 @@ function GeneralDetailsForm() {
       valid = false;
     }
 
+    // CGPA validation (required, between 0 and 10, and supports 2 decimal places)
+    if (formData.cgpa) {
+      const cgpaValue = parseFloat(formData.cgpa);
+      if (
+        isNaN(cgpaValue) ||
+        cgpaValue < 0 ||
+        cgpaValue > 10 ||
+        !/^\d(\.\d{1,2})?$/.test(formData.cgpa)
+      ) {
+        errorMessages.cgpa =
+          "CGPA should be a number between 0 and 10, with up to 2 decimal places.";
+        valid = false;
+      }
+    }
+
     // Languages validation (required)
     if (!formData.languages) {
       errorMessages.languages = "Languages are required";
@@ -209,8 +245,7 @@ function GeneralDetailsForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
-
+    console.log("sending the data ",formData);
     // Perform validation before submitting
     if (validateForm()) {
       try {
@@ -296,6 +331,37 @@ function GeneralDetailsForm() {
           />
         </div>
 
+        {/* <div>
+          <label htmlFor="cgpa" className="block text-gray-700">
+            CGPA (0-10) *
+          </label>
+          <input
+            type="text"
+            name="cgpa"
+            value={formData.cgpa}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            placeholder="Enter your CGPA"
+          />
+          {errors.cgpa && <p className="text-red-600">{errors.cgpa}</p>}
+        </div> */}
+
+        <div>
+          <label htmlFor="cgpa" className="block text-gray-700">
+            CGPA (0-10) *
+          </label>
+          <input
+            type="text"
+            name="cgpa"
+            value={user.cgpa}
+            onChange={handleCgpaChange} // Use the new handler for CGPA
+            className="w-full p-2 border rounded"
+            placeholder="Enter your CGPA"
+            disabled
+          />
+          {errors.cgpa && <p className="text-red-600">{errors.cgpa}</p>}
+        </div>
+
         {/* Course (Disabled) */}
         <div>
           <label htmlFor="course" className="block text-gray-700">
@@ -305,18 +371,6 @@ function GeneralDetailsForm() {
             type="text"
             name="course"
             value={user.branch}
-            disabled
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label htmlFor="course" className="block text-gray-700">
-            cgpa
-          </label>
-          <input
-            type="text"
-            name="course"
-            value={user.cgpa}
             disabled
             className="w-full p-2 border rounded"
           />
@@ -359,7 +413,7 @@ function GeneralDetailsForm() {
         {/* GitHub Link (Placeholder added) */}
         <div>
           <label htmlFor="githubLink" className="block text-gray-700">
-            GitHub Link 
+            GitHub Link *
           </label>
           <input
             type="url"

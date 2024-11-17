@@ -16,20 +16,26 @@ const generalDetailsSchema = new mongoose.Schema({
     required: true,
     match: /^[0-9]{10}$/, // Regex to ensure the contact number is a 10-digit number
   },
-  githublink: { type: String, required: false },
+  githubLink: { type: String, required: false },
 });
 
 const projectDetailsSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true }, // Reference to the User model
-    title: { type: String, required: true },
-    link: { type: String, required: false }, // Optional field for project URL
-    teamSize: { type: Number, required: true, min: 1 }, // Minimum team size is 1
-    techStack: { type: [String], required: true }, // Array of strings for technologies used
-    description: { type: String, required: true, maxlength: 1000 }, // Max length of 1000 characters for the description
+    projects: [
+      {
+        title: { type: String, required: true },
+        link: { type: String, required: false }, // Optional field for project URL
+        description: {
+          type: String,
+          required: true,
+          // Max length of 1000 characters for the description
+        },
+      },
+    ],
   },
   { timestamps: true }
-); // Automatically adds createdAt and updatedAt timestamps
+);
 
 export const projectDetails = mongoose.model(
   "projectDetails",
@@ -40,4 +46,4 @@ export const GeneralDetails = mongoose.model(
   generalDetailsSchema
 );
 
-// export default mongoose.model('GeneralDetails', generalDetailsSchema);
+// export const UserProject = mongoose.model("UserProject", projectSchema);

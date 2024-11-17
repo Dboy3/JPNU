@@ -125,6 +125,11 @@ const JobPost = () => {
   const onSubmit = (data) => {
     console.log("Submitted data:", data);
 
+    if (!data.ctc && !data.stipend) {
+      alert("Please select atleast one of role internship or fulltime");
+      return;
+    }
+
     if (data.registrationStartDate < currentDate) {
       alert("The date should be greater than or equal to the current date.");
       return;

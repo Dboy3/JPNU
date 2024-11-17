@@ -6,6 +6,9 @@ function PlacedStudent() {
   const [companies, setCompanies] = useState([]);
   const [students, setStudents] = useState([]);
 
+  // adding new thing
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
@@ -29,6 +32,7 @@ function PlacedStudent() {
   };
 
   const handleShowData = async () => {
+    console.log("selected company ", selectedCompany);
     if (selectedCompany) {
       try {
         const response = await axios.post(
@@ -40,35 +44,93 @@ function PlacedStudent() {
         console.error("Error fetching students:", error);
       }
     }
+
+    console.log(students);
   };
 
-  const handlePlacementChange = async (studentId, placed) => {
-    try {
-      // Call API to update placement status in the database
-      const response = await axios.post("http://localhost:8000/api/placements/update", {
-        studentId,
-        postId: selectedCompany,
-        placed: !placed, // Toggle placed value
-      });
+  // const handlePlacementChange = async (studentId, placed) => {
+  //   console.log(studentId , selectedCompany);
+  //   try {
+  //     if (placed) {
+  //       alert("The student is already placed.");
+  //       return;
+  //     }
 
-      // If the placement status is true (placed), add data to the PlacedData collection
-      if (!placed) {
-        await axios.post("http://localhost:8000/api/placements/placeddata", {
+  //     const response = await axios.post(
+  //       "http://localhost:8000/api/jobs/placed-students/add",
+  //       {
+  //         userId: studentId,
+  //         postId: selectedCompany,
+  //       }
+  //     );
+
+  //     if (response.status === 201) {
+  //       alert("Placement status updated successfully.");
+  //       // Update the student list locally to reflect the changes
+  //       setStudents((prevStudents) =>
+  //         prevStudents.map((student) =>
+  //           student._id === studentId ? { ...student, placed: true } : student
+  //         )
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating placement status:", error);
+  //     alert("Failed to update placement status. Please try again.");
+  //   }
+  // };
+
+  const handlePlacementChange = async (studentId, placed) => {
+    console.log(studentId, selectedCompany);
+    // if (placed) {
+    //   alert("The student is already placed.");
+    //   return;
+    // }
+
+    // Update the UI instantly
+    setStudents((prevStudents) =>
+      prevStudents.map((student) =>
+        student.userId === studentId ? { ...student, placed: true } : student
+      )
+    );
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/jobs/placed-students/add",
+        {
           userId: studentId,
           postId: selectedCompany,
-        });
-      }
-
-      // Update students list with the new placement status
-      setStudents((prevStudents) =>
-        prevStudents.map((student) =>
-          student._id === studentId
-            ? { ...student, placed: !placed }
-            : student
-        )
+        }
       );
+
+      if (response.status === 201) {
+        alert("Placement status updated successfully.");
+        // Refresh student data to ensure state consistency
+        const updatedResponse = await axios.post(
+          "http://localhost:8000/api/jobs/getstudentbypostid",
+          { postId: selectedCompany }
+        );
+        setStudents(updatedResponse.data || []);
+      } else if (response.status == 200) {
+        alert("Revert successfully.");
+        // Refresh student data to ensure state consistency
+        const updatedResponse = await axios.post(
+          "http://localhost:8000/api/jobs/getstudentbypostid",
+          { postId: selectedCompany }
+        );
+        setStudents(updatedResponse.data || []);
+      } else {
+        throw new Error("Failed to update placement status.");
+      }
     } catch (error) {
       console.error("Error updating placement status:", error);
+      alert("Failed to update placement status. Please try again.");
+
+      // Rollback the UI update if the API call fails
+      setStudents((prevStudents) =>
+        prevStudents.map((student) =>
+          student.userId === studentId ? { ...student, placed: false } : student
+        )
+      );
     }
   };
 
@@ -130,7 +192,7 @@ function PlacedStudent() {
             </thead>
             <tbody>
               {students.map((student) => (
-                <tr key={student._id} className="border-t">
+                <tr key={student.userId} className="border-t">
                   <td className="p-2">{student.firstName}</td>
                   <td className="p-2">{student.lastName}</td>
                   <td className="p-2">{student.email}</td>
@@ -139,10 +201,17 @@ function PlacedStudent() {
                   <td className="p-2">{student.cgpa}</td>
                   <td className="p-2">
                     <button
-                      onClick={() => handlePlacementChange(student._id, student.placed)}
-                      className={`px-4 py-2 rounded-md text-black bg-primary-lightest hover:bg-primary-light`}
+                      onClick={() =>
+                        handlePlacementChange(student.userId, student.placed)
+                      }
+                      className={`px-4 py-2 rounded-md ${
+                        student.placed
+                          ? "bg-green-200 text-green-800 cursor-not-allowed"
+                          : "bg-primary-lightest hover:bg-primary-light text-black"
+                      }`}
+                      // disabled={student.placed}
                     >
-                      {student.placed ? "Unplaced" : "placed"}
+                      {student.placed ? "Placed" : "Place"}
                     </button>
                   </td>
                 </tr>

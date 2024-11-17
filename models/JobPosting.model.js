@@ -55,7 +55,7 @@ const jobPostingSchema = new mongoose.Schema({
     },
     urlLink: {
         type: String,
-        required: true,
+        required: false,
     },
 }, { timestamps: true });
 

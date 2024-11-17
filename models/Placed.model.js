@@ -1,26 +1,27 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Define the schema for placed students
-const PlacedStudentsSchema = new mongoose.Schema({
+
+// Define the schema for placed students
+const PlacedStudentsSchema = new mongoose.Schema(
+  {
     userId: {
-        type: String,
-        ref: 'User',
-        required: true
+      type: String,
+      ref: "User",
+      required: true,
     },
     year: {
-        type: Number,
-        default: new Date().getFullYear()
+      type: Number,
+      default: new Date().getFullYear(),
     },
-    companyPlacedAt: {
-        type: String,
-        required: true
+    postId: {
+      type: String,
+      required: true,
     },
-    CTC: {
-        type: Number,
-        required: true
-    }
-}, {
-    timestamps: true
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
-export default mongoose.model('PlacedStudents', PlacedStudentsSchema);
+export default mongoose.model("PlacedStudents", PlacedStudentsSchema);

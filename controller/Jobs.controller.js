@@ -5,7 +5,7 @@ import PlacedStudents from "../models/Placed.model.js";
 import PlacedData from "../models/PlacedData.model.js";
 import { Application } from "../models/JobPosting.model.js";
 import { Notification } from "../models/notification.model.js";
-import {GeneralDetails} from "../models/Profile.model.js";
+import { GeneralDetails } from "../models/Profile.model.js";
 import User from "../models/user.model.js";
 
 import jwt from "jsonwebtoken";
@@ -278,7 +278,7 @@ export const getStudentsByPostId = async (req, res) => {
         const userId = app.userId;
         const user = await User.findOne(
           { userId },
-          { password: 0, userId: 0, appliedJobs: 0 }
+          { password: 0, appliedJobs: 0 }
         ); // Adjust fields as needed
         console.log(user);
         return user;
@@ -385,20 +385,6 @@ export const updateJobPosting = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating job posting", error });
-  }
-};
-
-export const addPlacedStudent = async (req, res) => {
-  try {
-    const { userId, companyPlacedAt, CTC } = req.body;
-
-    const newRecord = new PlacedStudents({ userId, companyPlacedAt, CTC });
-    await newRecord.save();
-
-    res.status(201).json({ message: "Record added successfully", newRecord });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error adding record", error });
   }
 };
 
@@ -630,5 +616,125 @@ export const getAllPlacedData = async (req, res) => {
   } catch (error) {
     console.error("Error fetching all placed data:", error);
     res.status(500).json({ message: "Error fetching placed data", error });
+  }
+};
+
+// export const addPlacedStudent = async (req, res) => {
+//   try {
+//     const { userId, postId } = req.body;
+//     console.log(userId , postId) ;
+
+//     console.log(req.body);
+//     // Check if the student is already placed
+//     const existingRecord = await PlacedStudents.findOne({ userId });
+//     if (existingRecord) {
+//       return res.status(400).json({ message: "Student is already placed." });
+//     }
+
+//     // Fetch job posting details using postId
+//     const jobPosting = await JobPosting.findOne({ postId });
+//     if (!jobPosting) {
+//       return res.status(404).json({ message: "Job posting not found." });
+//     }
+
+//     console.log(existingRecord);
+//     console.log(jobPosting);
+
+//     // Create a new placed student record
+//     const newRecord = new PlacedStudents({
+//       userId,
+//       postId,
+//     });
+
+//     console.log("the new record " , newRecord);
+//     // Save the new placed student record
+//     await newRecord.save();
+
+//     // Update the `placed` field in the User schema
+//     const userUpdate = await User.findOneAndUpdate(
+//       { userId: userId },
+//       { placed: true }
+//     );
+
+//     if (!userUpdate) {
+//       // If updating User schema fails, delete the newly added record from PlacedStudents
+//       await PlacedStudents.deleteOne({ userId });
+//       return res.status(500).json({
+//         message: "Failed to update user status. Reverted changes.",
+//       });
+//     }
+
+//     res.status(201).json({
+//       message: "Record added successfully",
+//       newRecord,
+//       userUpdate,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     // If an error occurs, delete the new record from PlacedStudents if it exists
+//     await PlacedStudents.deleteOne({ userId });
+//     res.status(500).json({ message: "Error adding record", error });
+//   }
+// };
+
+export const addPlacedStudent = async (req, res) => {
+  try {
+    const { userId, postId } = req.body;
+
+    // Check if the student is already placed
+    const existingRecord = await PlacedStudents.findOne({ userId });
+
+    if (existingRecord) {
+      // If the student is already placed, remove their placed status
+      await PlacedStudents.deleteOne({ userId });
+
+      const userUpdate = await User.findOneAndUpdate(
+        { userId },
+        { placed: false }
+      );
+
+      return res.status(200).json({
+        message: "Student's placed status has been reverted.",
+        updatedUser: userUpdate,
+      });
+    }
+
+    // Fetch job posting details using postId
+    const jobPosting = await JobPosting.findOne({ postId });
+    if (!jobPosting) {
+      return res.status(404).json({ message: "Job posting not found." });
+    }
+
+    // Create a new placed student record
+    const newRecord = new PlacedStudents({
+      userId,
+      postId,
+    });
+
+    // Save the new placed student record
+    await newRecord.save();
+
+    // Update the `placed` field in the User schema
+    const userUpdate = await User.findOneAndUpdate(
+      { userId },
+      { placed: true },
+    );
+
+    if (!userUpdate) {
+      // If updating User schema fails, delete the newly added record from PlacedStudents
+      await PlacedStudents.deleteOne({ userId });
+      return res.status(200).json({
+        message: "Failed to update user status. Reverted changes.",
+      });
+    }
+
+    res.status(201).json({
+      message: "Student placed successfully.",
+      newRecord,
+      updatedUser: userUpdate,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while processing the request.", error });
   }
 };

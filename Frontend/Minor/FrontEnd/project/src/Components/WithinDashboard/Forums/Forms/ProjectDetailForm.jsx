@@ -1,356 +1,251 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 const ProjectDetailForm = () => {
   const [projects, setProjects] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [currentProject, setCurrentProject] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    title: "",
-    link: "",
-    teamSize: "",
-    techStack: [],
-    description: "",
-  });
+  // change - note
+  // useEffect(() => {
+  //   const fetchProjects = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "http://localhost:8000/api/profile/getProj",
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           credentials: "include",
+  //         }
+  //       );
+  //       const data = await response.json();
 
-  const [formErrors, setFormErrors] = useState({
-    link: "",
-    teamSize: "",
-  });
+  //       // If data.data exists and is not empty, set projects, else set as an empty array
+  //       if (data && data.data) {
+  //         setProjects(data.data);
+  //       } else {
+  //         setProjects([]); // Ensure projects is always an array
+  //       }
 
-  // Fetch projects on load
+  //       console.log("Fetched projects:", data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching projects:", error);
+  //       setProjects([]); // In case of error, reset projects to an empty array
+  //     }
+  //   };
+
+  //   fetchProjects();
+  // }, []);
+
   useEffect(() => {
-    // fetchProjects();
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8000/api/profile/getProj",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+        const data = await response.json();
+
+        // Ensure projects is an array
+        if (data && Array.isArray(data.data)) {
+          setProjects(data.data);
+        } else {
+          setProjects([]); // Fallback to an empty array
+        }
+
+        console.log("Fetched projects:", data.data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        setProjects([]); // Reset projects to an empty array on error
+      }
+    };
+
+    fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch("/api/projects");
-      const data = await response.json();
-      setProjects(data);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
+  const handleProjectChange = (index, field, value) => {
+    const updatedProjects = [...projects];
+    updatedProjects[index][field] = value;
+    setProjects(updatedProjects);
+
+    // Clear validation errors for the field
+    if (errors[index]?.[field]) {
+      const updatedErrors = { ...errors };
+      delete updatedErrors[index][field];
+      setErrors(updatedErrors);
     }
   };
 
-  const handleAddProject = () => {
-    console.log(formData);
-    setCurrentProject(null);
-    setFormData({
-      title: "",
-      link: "",
-      teamSize: "",
-      techStack: [],
-      description: "",
+  const addProjectField = () => {
+    setProjects([...projects, { title: "", link: "", description: "" }]);
+  };
+
+  const removeProjectField = (index) => {
+    const updatedProjects = projects.filter((_, i) => i !== index);
+    setProjects(updatedProjects);
+
+    // Remove errors for the removed project
+    const updatedErrors = { ...errors };
+    delete updatedErrors[index];
+    setErrors(updatedErrors);
+  };
+
+  const validateFields = () => {
+    const validationErrors = {};
+    const urlRegex = /^(https?:\/\/)?localhost(:\d+)?(\/[a-zA-Z0-9%_./-]*)?$/;
+
+    projects.forEach((project, index) => {
+      const projectErrors = {};
+
+      if (!project.title) {
+        projectErrors.title = "Title is required.";
+      }
+
+      if (!project.description) {
+        projectErrors.description = "Description is required.";
+      }
+
+      // Validate URL if a link is provided
+      if (project.link && !urlRegex.test(project.link)) {
+        projectErrors.link = "Please enter a valid URL.";
+      }
+
+      if (Object.keys(projectErrors).length > 0) {
+        validationErrors[index] = projectErrors;
+      }
     });
-    setFormErrors({});
-    setShowForm(true);
+
+    return validationErrors;
   };
 
-  const handleEditProject = (project) => {
-    setCurrentProject(project);
-    setFormData({
-      title: project.title,
-      link: project.link,
-      teamSize: project.teamSize,
-      techStack: project.techStack.join(", "),
-      description: project.description,
-    });
-    setFormErrors({});
-    setShowForm(true);
-  };
-
-  const handleDeleteProject = async (id) => {
-    try {
-      await fetch(`/api/projects/${id}`, {
-        method: "DELETE",
-      });
-      setProjects(projects.filter((project) => project.id !== id));
-    } catch (error) {
-      console.error("Error deleting project:", error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const validateForm = () => {
-    const errors = {};
-
-    // Title validation
-    if (!formData.title.trim()) {
-      errors.title = "Project title is required.";
-    }
-
-    // Description validation
-    if (!formData.description.trim()) {
-      errors.description = "Project description is required.";
-    }
-
-    // Tech Stack validation
-    if (!formData.techStack.trim()) {
-      errors.techStack = "Tech stack is required.";
-    }
-
-    // Link validation (optional but valid if provided)
-    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
-    if (formData.link && !urlRegex.test(formData.link)) {
-      errors.link = "Please enter a valid URL.";
-    }
-
-    // Team size validation (optional)
-    if (
-      formData.teamSize &&
-      (formData.teamSize < 0 || formData.teamSize > 40)
-    ) {
-      errors.teamSize = "Team size must be between 0 and 40.";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) {
+  const handleSubmit = async () => {
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
-    const { title, link, teamSize, mentor, techStack, description } = formData;
-    const projectData = {
-      title,
-      link,
-      teamSize,
-      mentor,
-      techStack: techStack.split(",").map((tech) => tech.trim()),
-      description,
-    };
+    console.log("Printing the projects before submit", projects);
 
+    // Submit the form to the API
+    setLoading(true);
     try {
-      if (currentProject) {
-        // Update project
-        // const response = await fetch(`/api/projects/${currentProject.id}`, {
-        //   method: "PUT",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(projectData),
-        //   credentials : "include"
-        // });
-        const updatedProject = await response.json();
-        setProjects(
-          projects.map((proj) =>
-            proj.id === currentProject.id ? updatedProject : proj
-          )
-        );
+      const response = await fetch("http://localhost:8000/api/profile/adProj", {
+        method: "POST", // or PUT if updating an existing record
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projects: projects }),
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Projects submitted successfully:", data.message);
       } else {
-        // Add new project
-        console.log(newProject);
-        // const response = await fetch("/api/projects", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(projectData),
-        //   credentials : "include"
-        // });
-        const newProject = await response.json();
-        setProjects([...projects, newProject]);
+        console.error("Failed to submit projects:", data.message);
+        alert("you have enter duplicate project title");
       }
-      setShowForm(false);
     } catch (error) {
-      console.error("Error saving project:", error);
+      console.error("Error submitting projects:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Projects</h1>
-        <button
-          className="bg-primary text-white px-4 py-2 rounded"
-          onClick={handleAddProject}
-        >
-          + Add New
-        </button>
-      </div>
-
-      {projects.length === 0 ? (
-        <p>No projects available. Add one using the button above.</p>
-      ) : (
-        <div className="grid gap-8">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="p-6 border rounded-lg shadow-md bg-white"
-            >
-              <div className="flex justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold">{project.title}</h3>
-                  <a
-                    href={project.link}
-                    className="text-blue-500"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {project.link}
-                  </a>
-                  <p className="text-gray-500">{project.dates}</p>
-                  <p>
-                    <strong>Team Size:</strong> {project.teamSize} |{" "}
-                    <strong>Mentor:</strong> {project.mentor}
-                  </p>
-                  <div className="flex space-x-2 mt-2">
-                    {project.techStack.map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="bg-gray-200 text-sm px-2 py-1 rounded"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="mt-4">{project.description}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditProject(project)}
-                    className="text-blue-500"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteProject(project.id)}
-                    className="text-red-500"
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </div>
-              </div>
+    <div>
+      <label className="block text-gray-700">Projects</label>
+      {/* Only render if projects array has items */}
+      {projects && projects.length > 0 ? (
+        projects.map((project, index) => (
+          <div key={index} className="border p-2 mb-4 rounded">
+            <div className="mb-2">
+              <input
+                type="text"
+                value={project.title}
+                onChange={(e) =>
+                  handleProjectChange(index, "title", e.target.value)
+                }
+                className={`w-full p-2 border rounded ${
+                  errors[index]?.title ? "border-red-500" : ""
+                }`}
+                placeholder={`Enter project title ${index + 1}`}
+              />
+              {errors[index]?.title && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors[index].title}
+                </p>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-
-      {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-            <h2 className="text-2xl mb-4">
-              {currentProject ? "Edit Project" : "Add New Project"}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Project Title
-                </label>
-                <input
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter the project title"
-                />
-                {formErrors.title && (
-                  <p className="text-red-500 text-sm">{formErrors.title}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Project Link
-                </label>
-                <input
-                  name="link"
-                  value={formData.link}
-                  onChange={handleInputChange}
-                  type="url"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter the project URL"
-                />
-                {formErrors.link && (
-                  <p className="text-red-500 text-sm">{formErrors.link}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Team Size
-                </label>
-                <input
-                  name="teamSize"
-                  value={formData.teamSize}
-                  onChange={handleInputChange}
-                  type="number"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter team size (between 0 and 40)"
-                />
-                {formErrors.teamSize && (
-                  <p className="text-red-500 text-sm">{formErrors.teamSize}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Tech Stack (comma separated)
-                </label>
-                <input
-                  name="techStack"
-                  value={formData.techStack}
-                  onChange={handleInputChange}
-                  type="text"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter the tech stack used"
-                />
-                {formErrors.techStack && (
-                  <p className="text-red-500 text-sm">{formErrors.techStack}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Project Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows="6"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter a brief description of the project (around 200 words)"
-                />
-                {formErrors.description && (
-                  <p className="text-red-500 text-sm">
-                    {formErrors.description}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="bg-gray-300 px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary text-white px-4 py-2 rounded"
-                >
-                  {currentProject ? "Update Project" : "Add Project"}
-                </button>
-              </div>
-            </form>
+            <div className="mb-2">
+              <input
+                type="text"
+                value={project.link}
+                onChange={(e) =>
+                  handleProjectChange(index, "link", e.target.value)
+                }
+                className={`w-full p-2 border rounded ${
+                  errors[index]?.link ? "border-red-500" : ""
+                }`}
+                placeholder={`Enter project link (optional)`}
+              />
+              {errors[index]?.link && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors[index].link}
+                </p>
+              )}
+            </div>
+            <div className="mb-2">
+              <textarea
+                value={project.description}
+                onChange={(e) =>
+                  handleProjectChange(index, "description", e.target.value)
+                }
+                className={`w-full p-2 border rounded ${
+                  errors[index]?.description ? "border-red-500" : ""
+                }`}
+                placeholder={`Enter project description ${index + 1}`}
+              />
+              {errors[index]?.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors[index].description}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => removeProjectField(index)}
+              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+            >
+              Remove
+            </button>
           </div>
-        </div>
+        ))
+      ) : (
+        <p>No projects to display</p> // This message will appear if the projects array is empty or null
       )}
+      <button
+        type="button"
+        onClick={addProjectField}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Add Project
+      </button>
+      <button
+        type="button"
+        onClick={handleSubmit}
+        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4"
+        disabled={loading}
+      >
+        {loading ? "Submitting..." : "Submit"}
+      </button>
     </div>
   );
 };

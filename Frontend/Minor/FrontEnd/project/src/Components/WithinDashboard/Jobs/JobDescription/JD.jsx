@@ -33,6 +33,7 @@ const JD = () => {
   };
 
   const handleFormSubmit = () => {
+    // call from the backend to check is profile complete or not
     if (isChecked) {
       setIsApplied(true);
       setIsModalOpen(false);
@@ -155,6 +156,8 @@ const JD = () => {
                 I am aware that the details entered by me are valid
               </label>
             </div>
+
+
             <button
               onClick={handleFormSubmit}
               className="bg-primary-dark text-white px-4 py-2 rounded hover:bg-primary-darker w-full"

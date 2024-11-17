@@ -33,6 +33,7 @@ router.post('/getposts', getJobPostings);
 router.post('/getstudentbypostid' , getStudentsByPostId) ; 
 router.get('/get/:id',getJobById) ; 
 
+
 // Route to delete a job posting (Admin only)
 // DELETE /api/job-postings/:postId
 router.delete('/:postId', verifyAdminRole, deleteJobPosting);

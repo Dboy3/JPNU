@@ -1,57 +1,54 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../Pages/auth";
 
 const Resume = () => {
+  const [resumeData, setResumeData] = useState(null);
+  const [projects, setProjects] = useState([]);
   const resumeRef = useRef();
+  const user = useSelector(selectUser);
 
-  // Sample data object
-  const resumeData = {
-    firstName: "Dhruvil",
-    middleName: "C",
-    lastName: "Rana",
-    intro: "A proficient software developer with good knowledge in ReactJS, MongoDB, DSA...",
-    github: "https://github.com/Dboy3",
-    contact: "+91-7990950048",
-    email: "dhruvil.rana@example.com",
-    skills: ["MongoDB", "ReactJS", "JavaScript"],
-    education: {
-      university: "Nirma University",
-      course: "B.Tech - Computer Science and Engineering",
-      cgpa: "8.35/10",
-      twelfth: {
-        school: "Baroda High School",
-        percentage: "84%",
-      },
-      tenth: {
-        school: "Jeevan Sadhna",
-        percentage: "85%",
-      },
-    },
-    experience: {
-      position: "React.js Technology Trainee Intern",
-      company: "Bestwave Technologies Private Limited",
-      dates: "May 27, 2024 - Jul 12, 2024",
-      location: "Jamnagar, Gujarat, India",
-      mentor: "Ashish Butani",
-      contact: "+91-7990950048",
-      email: "ashishbutani1@gmail.com",
-      details:
-        "Collaborated with team members on real-world projects, tested APIs, worked with Express and Mongoose.",
-    },
-    projects: [
-      {
-        title: "Ecommerce-FullStack",
-        link: "https://github.com/Dboy3/Project",
-        dates: "Jun 22, 2024 - Jul 18, 2024",
-        skills: ["MongoDB", "ReactJS", "Redux", "Express.js", "JavaScript"],
-      },
-    ],
-    achievements: [
-      "Top 23% in LeetCode contests worldwide",
-      "First place in Hackathon 2023",
-    ],
-  };
+  // Fetch resume details from API
+  useEffect(() => {
+    // Fetch data from getdetails API
+    const fetchDetails = async () => {
+      const response = await fetch(
+        "http://localhost:8000/api/profile/getdetails",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      setResumeData(data.data);
+      console.log( "resumeData ", resumeData);
+    };
+
+    // Fetch data from getProj API
+    const fetchProjects = async () => {
+      const response = await fetch(
+        "http://localhost:8000/api/profile/getProj",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      setProjects(data.data);
+      console.log("projects " , projects);
+    };
+
+    fetchDetails();
+    fetchProjects();
+  }, []);
 
   // Function to download PDF
   const downloadPDF = () => {
@@ -67,6 +64,11 @@ const Resume = () => {
       pdf.save("resume.pdf");
     });
   };
+
+  // If data is not yet fetched, show loading
+  if (!resumeData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="p-8">
@@ -85,18 +87,20 @@ const Resume = () => {
             {resumeData.firstName} {resumeData.middleName} {resumeData.lastName}
           </h1>
           <div className="text-black mt-2">
-            {resumeData.github && (
+            {resumeData.githubLink && (
               <a
-                href={resumeData.github}
+                href={resumeData.githubLink}
                 className="text-primary-dark hover:underline"
               >
-                {resumeData.github}
+                {resumeData.githubLink}
               </a>
             )}
-            {resumeData.contact && <p>{resumeData.contact}</p>}
+            {resumeData.contactNumber && <p>{resumeData.contactNumber}</p>}
             {resumeData.email && <p>{resumeData.email}</p>}
           </div>
-          {resumeData.intro && <p className="mt-4 text-black">{resumeData.intro}</p>}
+          {resumeData.intro && (
+            <p className="mt-4 text-black">{resumeData.intro}</p>
+          )}
         </div>
 
         <hr className="my-4 border-black" />
@@ -121,55 +125,14 @@ const Resume = () => {
         <hr className="my-4 border-black" />
 
         {/* Education Section */}
-        {resumeData.education && (
+        {resumeData.course && (
           <div>
-            <h2 className="text-2xl font-semibold text-black">Academic Details</h2>
+            <h2 className="text-2xl font-semibold text-black">
+              Academic Details
+            </h2>
             <div className="mt-2 text-black">
-              {resumeData.education.university && (
-                <h3 className="font-semibold">{resumeData.education.university}</h3>
-              )}
-              {resumeData.education.course && resumeData.education.cgpa && (
-                <p>
-                  {resumeData.education.course} | CGPA: {resumeData.education.cgpa}
-                </p>
-              )}
-              {resumeData.education.twelfth && resumeData.education.twelfth.school && (
-                <p>
-                  {resumeData.education.twelfth.school} | Percentage:{" "}
-                  {resumeData.education.twelfth.percentage}
-                </p>
-              )}
-              {resumeData.education.tenth && resumeData.education.tenth.school && (
-                <p>
-                  {resumeData.education.tenth.school} | Percentage:{" "}
-                  {resumeData.education.tenth.percentage}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        <hr className="my-4 border-black" />
-
-        {/* Experience Section */}
-        {resumeData.experience && (
-          <div>
-            <h2 className="text-2xl font-semibold text-black">Experience</h2>
-            <div className="mt-2 text-black">
-              {resumeData.experience.position && (
-                <h3 className="font-semibold">{resumeData.experience.position}</h3>
-              )}
-              {resumeData.experience.company && <p>{resumeData.experience.company}</p>}
-              {resumeData.experience.dates && <p>{resumeData.experience.dates}</p>}
-              {resumeData.experience.location && <p>{resumeData.experience.location}</p>}
-              {resumeData.experience.mentor && resumeData.experience.contact && (
-                <p>
-                  Mentor: {resumeData.experience.mentor} | Contact:{" "}
-                  {resumeData.experience.contact} | Email:{" "}
-                  {resumeData.experience.email}
-                </p>
-              )}
-              {resumeData.experience.details && <p>{resumeData.experience.details}</p>}
+              {resumeData.course && <p>{resumeData.course}</p>}
+              {resumeData.rollNo && <p>Roll No: {resumeData.rollNo}</p>}
             </div>
           </div>
         )}
@@ -177,20 +140,19 @@ const Resume = () => {
         <hr className="my-4 border-black" />
 
         {/* Projects Section */}
-        {resumeData.projects && resumeData.projects.length > 0 && (
+        {projects && projects.length > 0 && (
           <div>
             <h2 className="text-2xl font-semibold text-black">Projects</h2>
-            {resumeData.projects.map((project, index) => (
+            {projects.map((project, index) => (
               <div key={index} className="mt-2 text-black">
                 <h3 className="font-semibold">{project.title}</h3>
                 <a
                   href={project.link}
                   className="text-primary-dark hover:underline"
                 >
-                  {project.link}
+                  {project.link || "No link provided"}
                 </a>
-                <p>{project.dates}</p>
-                <p>Skills: {project.skills.join(", ")}</p>
+                <p>{project.description}</p>
               </div>
             ))}
           </div>

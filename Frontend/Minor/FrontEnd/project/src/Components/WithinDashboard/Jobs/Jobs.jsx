@@ -47,7 +47,7 @@ function Jobs() {
           >
             Applications
           </button>
-          <button
+          {/* <button
             onClick={() => navigate("/d/jobs/offers")}
             className={`py-2 px-4 rounded-full ${
               getCurrentCategory() === "Offers"
@@ -56,7 +56,7 @@ function Jobs() {
             }`}
           >
             Offers
-          </button>
+          </button> */}
         </div>
       </div>
 

@@ -111,21 +111,21 @@ export const createUser = async (req, res) => {
     }
 
     // Handle the case for "Student" role
-    if (role === "Student") {
+    if (role === "Student" || role==="SPC") {
       if (!rollNo) {
         return res
           .status(400)
-          .json({ error: "Roll No. is required for students." });
+          .json({ error: "Roll No. is required for students and SPCs." });
       }
       if (!cgpa) {
         return res
           .status(400)
-          .json({ error: "cgpa is required for students." });
+          .json({ error: "cgpa is required for students and SPCs." });
       }
       if (!branch) {
         return res
           .status(400)
-          .json({ error: "branch is required for students." });
+          .json({ error: "branch is required for students and SPCs." });
       }
 
       // future implementation that academic details are entered by co-ordinator
@@ -154,9 +154,9 @@ export const createUser = async (req, res) => {
       role,
       userId,
       password: hashedPassword,
-      rollNo: role === "Student" ? rollNo : undefined,
-      cgpa: role === "Student" ? cgpa : undefined,
-      branch: role === "Student" ? branch : undefined,
+      rollNo: role === "Student" || role === "SPC" ? rollNo : undefined,
+      cgpa: role === "Student" || role === "SPC"  ? cgpa : undefined,
+      branch: role === "Student" || role === "SPC"  ? branch : undefined,
     });
 
     // Save the user to the database

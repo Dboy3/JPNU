@@ -25,11 +25,6 @@ const Home = () => {
   const notifications = useSelector(getNotificationList);
   console.log(notifications);  // This will show the latest notifications when they change
   const navigate = useNavigate();
-
-  const handleCardClick = (id) => {
-    navigate(`d/jobs/${id}`);
-  };
-
   
 
   return (
@@ -43,7 +38,6 @@ const Home = () => {
           <NotificationCard
             key={notification._id}
             {...notification}
-            onClick={() => handleCardClick(notification.id)}
           />
         ))}
       </div>

@@ -44,7 +44,7 @@ function GeneralDetailsForm() {
         );
 
         const data = await response.json();
-        console.log("the data comming from api " , data);
+        console.log("the data comming from api ", data);
         if (data && data.data) {
           // If data is returned from the backend, populate formData with it
           const {
@@ -151,7 +151,22 @@ function GeneralDetailsForm() {
     }));
   };
 
+  // const addSkillField = () => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     skills: [...prev.skills, ""],
+  //   }));
+  // };
+
   const addSkillField = () => {
+    // Check if there are any empty skill fields
+    const hasEmptySkill = formData.skills.some((skill) => skill.trim() === "");
+    if (hasEmptySkill) {
+      alert("Please fill in the existing skill field before adding a new one.");
+      return;
+    }
+
+    // Add a new empty skill field
     setFormData((prev) => ({
       ...prev,
       skills: [...prev.skills, ""],
@@ -173,11 +188,13 @@ function GeneralDetailsForm() {
       githubLink: "",
       contactNumber: "",
       languages: "",
+      skills: "", // Add skills error message
+      achievements: "", // Add achievements error message
     };
 
     // Email validation: should not end with @nirmauni.ac.in
     if (formData.email.endsWith("@nirmauni.ac.in")) {
-      errorMessages.email = "Email should not end with @nirmauni.ac.in";
+      errorMessages.email = "enter email other than nirmauni.ac.in";
       valid = false;
     }
 
@@ -192,6 +209,19 @@ function GeneralDetailsForm() {
     // Contact Number validation (required)
     if (!formData.contactNumber) {
       errorMessages.contactNumber = "Contact Number is required";
+      valid = false;
+    }
+
+    // Skills validation: Ensure no skill field is empty
+    if (formData.skills.some((skill) => skill.trim() === "")) {
+      errorMessages.skills = "All skill fields must be filled";
+      valid = false;
+    }
+
+    if (
+      formData.achievements.some((achievement) => achievement.trim() === "")
+    ) {
+      errorMessages.achievements = "All achievement fields must be filled";
       valid = false;
     }
 
@@ -359,7 +389,7 @@ function GeneralDetailsForm() {
         {/* GitHub Link (Placeholder added) */}
         <div>
           <label htmlFor="githubLink" className="block text-gray-700">
-            GitHub Link 
+            GitHub Link
           </label>
           <input
             type="url"
@@ -394,6 +424,7 @@ function GeneralDetailsForm() {
         </div>
 
         {/* Achievements */}
+        {/* Achievements */}
         <div>
           <label className="block text-gray-700">Achievements</label>
           {formData.achievements.map((achievement, index) => (
@@ -414,6 +445,10 @@ function GeneralDetailsForm() {
               </button>
             </div>
           ))}
+          {errors.achievements && (
+            <p className="text-red-600">{errors.achievements}</p>
+          )}{" "}
+          {/* Display error for achievements */}
           <button
             type="button"
             onClick={addAchievementField}
@@ -422,6 +457,66 @@ function GeneralDetailsForm() {
             Add Achievement
           </button>
         </div>
+
+        {/* Skills */}
+        {/* <div>
+          <label className="block text-gray-700">Skills</label>
+          {formData.skills.map((skill, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={skill}
+                onChange={(e) => handleSkillChange(index, e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder={`Skill ${index + 1}`}
+              />
+              <button
+                type="button"
+                onClick={() => removeSkillField(index)}
+                className="text-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addSkillField}
+            className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          >
+            Add Skill
+          </button>
+        </div> */}
+
+        {/* Skills */}
+        {/* <div>
+          <label className="block text-gray-700">Skills</label>
+          {formData.skills.map((skill, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={skill}
+                onChange={(e) => handleSkillChange(index, e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder={`Skill ${index + 1}`}
+              />
+              <button
+                type="button"
+                onClick={() => removeSkillField(index)}
+                className="text-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addSkillField}
+            className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          >
+            Add Skill
+          </button>
+        </div> */}
 
         {/* Skills */}
         <div>
@@ -444,6 +539,8 @@ function GeneralDetailsForm() {
               </button>
             </div>
           ))}
+          {errors.skills && <p className="text-red-600">{errors.skills}</p>}{" "}
+          {/* Display error for skills */}
           <button
             type="button"
             onClick={addSkillField}

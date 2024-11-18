@@ -148,6 +148,7 @@ const ProjectDetailForm = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Projects submitted successfully:", data.message);
+        alert("Projects added successfully");
       } else {
         console.error("Failed to submit projects:", data.message);
         alert("you have enter duplicate project title");

@@ -49,7 +49,7 @@ const SignupPage = () => {
     }
 
     // Student-specific validation
-    if (formData.role === "Student") {
+    if (formData.role === "Student" ) {
       if (!formData.cgpa || !formData.rollNo || !formData.branch) {
         setError(
           "CGPA, Roll Number, and Branch must be provided for Students."
@@ -240,7 +240,7 @@ const SignupPage = () => {
             </div>
 
             {/* Roll Number (For Students) */}
-            {formData.role === "Student" && (
+            {formData.role === "Student"  && (
               <>
                 <div>
                   <label
@@ -303,7 +303,6 @@ const SignupPage = () => {
                     <option value="cse">
                       Computer Science and Engineering (CSE)
                     </option>
-                    <option value="it">Information Technology (IT)</option>
                   </select>
                 </div>
               </>

@@ -7,10 +7,13 @@ import {
 } from "../../../AdminDashboard/JobPost/jobPostSlice";
 import { selectUser } from "../../../../Pages/auth";
 import { applyForJob } from "../jobSlice";
+import { useNavigate } from "react-router-dom";
+import { fetchApplications } from "../jobSlice";
 
 const JD = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate() ;
 
   useEffect(() => {
     dispatch(getJobById(id));
@@ -70,6 +73,8 @@ const JD = () => {
 
         const data = { userId: user.userId, postId: job.postId };
         dispatch(applyForJob(data));
+        await dispatch(fetchApplications({ userId: user.userId })); 
+        navigate("/d/jobs/applications");
       } else {
         alert("Please check the agreement before submitting.");
       }

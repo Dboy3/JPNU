@@ -17,6 +17,7 @@ function Opportunites() {
   }, [dispatch]);
 
   const newJobsOpportunity = useSelector(getOpportunites);
+  console.log(newJobsOpportunity);
 
   return (
     <div className="space-y-4">

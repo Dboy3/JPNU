@@ -59,8 +59,8 @@ router.post('/expenditure/add', verifyRole(['SPC', 'Admin']), addExpenditure);
 router.put('/expenditure/:id', verifyRole(['SPC', 'Admin']), updateExpenditure);
 
 // Routes for Admin only
-router.get('/expenditure', verifyRole(['admin']), getAllExpenditures);
-router.get('/expenditure/filter', verifyRole(['admin']), getFilteredExpenditures);
+router.get('/expenditure', verifyRole(['Admin' ,'SPC']), getAllExpenditures);
+router.get('/expenditure/filter', verifyRole(['Admin' , 'SPC']), getFilteredExpenditures);
 router.post('/addApplication', authenticateUser, addApplication);
 router.post('/getApplications', authenticateUser, getApplications);
 import { getAllPlacedData } from "../controller/Jobs.controller.js";

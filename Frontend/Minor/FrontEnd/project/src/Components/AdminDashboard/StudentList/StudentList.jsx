@@ -148,7 +148,7 @@ function StudentList() {
         <div>
           <label className="block font-medium">Select Branches</label>
           <div className="flex space-x-3">
-            {["cse", "ec", "ee"].map((branch) => (
+            {["cse", "ec", "ee" ].map((branch) => (
               <label key={branch} className="flex items-center space-x-2">
                 <input
                   type="checkbox"

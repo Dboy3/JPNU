@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-const eligibleCoursesList = ["CSE", "EE", "EC", "Civil", "Mech"];
+const eligibleCoursesList = ["CSE", "EE", "EC"];
 const JobPost = () => {
   const [jobs, setJobs] = useState([]); // Initialize jobs as an empty array
   const [showForm, setShowForm] = useState(false);
@@ -15,6 +15,9 @@ const JobPost = () => {
 
   const currentDate = new Date().toISOString().split("T")[0];
 
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
   // Fetch jobs from API
   const fetchJobs = async () => {
     try {
@@ -198,6 +201,16 @@ const JobPost = () => {
               <p>
                 <strong>Roles:</strong> {job.roles?.join(", ") || "N/A"}
               </p>
+              <p>
+                <strong>Employment Type:</strong>
+                {job.employmentType?.fullTime && job.employmentType?.internship
+                  ? "Full-Time, Internship"
+                  : job.employmentType?.fullTime
+                  ? "Full-Time"
+                  : job.employmentType?.internship
+                  ? "Internship"
+                  : "Not Specified"}
+              </p>
 
               {/* CTC */}
               <p>
@@ -265,6 +278,12 @@ const JobPost = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-screen overflow-y-auto">
             <h2 className="text-2xl mb-4">Add New JobPost</h2>
+            <button
+              onClick={handleCloseForm}
+              className="text-xl font-semibold text-red-500"
+            >
+              &times;
+            </button>
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* Company Name */}
               <div className="mb-4">
@@ -325,15 +344,15 @@ const JobPost = () => {
                     type="number"
                     {...register("ctc", {
                       required: showCtc,
-                      min: 0,
-                      max: 10000000,
+                      min: 100000,
+                      max: 100000000,
                       valueAsNumber: true,
                     })}
                     className="border px-4 py-2 rounded w-full"
                   />
                   {errors.ctc && (
                     <p className="text-red-500 text-sm">
-                      CTC should be non-negative and ≤ 10,000,000
+                      CTC should be atleast 100000 and atmax 100000000
                     </p>
                   )}
                 </div>
@@ -348,7 +367,7 @@ const JobPost = () => {
                     type="number"
                     {...register("stipend", {
                       required: showStipend,
-                      min: 0,
+                      min: 1000,
                       max: 10000000,
                       valueAsNumber: true,
                     })}
@@ -356,7 +375,7 @@ const JobPost = () => {
                   />
                   {errors.stipend && (
                     <p className="text-red-500 text-sm">
-                      Stipend should be non-negative and ≤ 10,000,000
+                      stiped should be atleast 1000 and atmax 100000000
                     </p>
                   )}
                 </div>

@@ -1,62 +1,65 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addNotification,
-  editNotification,
-  deleteNotification,
-  getNotificationList,
-  fetchNotifications,
-} from "./notificationSlice";
 
 const AddNotifications = () => {
-  const dispatch = useDispatch();
-
-  const notifications = useSelector(getNotificationList);
+  const [notifications, setNotifications] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingNotificationId, setEditingNotificationId] = useState(null);
-  
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-  
-  const handleAddNotification = () => {
-    setEditingNotificationId(null); // Clear editing state for new notification
-    reset(); // Reset form values
-    setShowForm(true); // Show form
-  };
-  
-  const handleEditNotification = (notification) => {
-    setEditingNotificationId(notification.id); // Set the id of the notification being edited
-    reset({ content: notification.content }); // Pre-fill form with existing content
-    setShowForm(true); // Show form
-  };
-  
-  const handleDeleteNotification = (id) => {
-    dispatch(deleteNotification(id)); // Ensure it's correctly deleting from Redux
-  };
-  
-  useEffect(() => {
-    dispatch(fetchNotifications());
-  }, [dispatch ]);
-  
-  const onSubmit = (data) => {
-    console.log(data);
-    if (editingNotificationId) {
-      // Editing an existing notification
-      dispatch(
-        editNotification({ id: editingNotificationId, content: data.content })
-      );
-    } else {
-      // Adding a new notification
-      dispatch(addNotification({ message: data.content }));
-    }
 
-    setShowForm(false); // Hide the form after submit
+  useEffect(() => {
+    // Fetch all notifications on component mount
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/notification/pull");
+        const data = await response.json();
+        if (response.ok) {
+          setNotifications(data);
+        } else {
+          console.error("Error fetching notifications:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const handleAddNotification = () => {
+    reset();
+    setShowForm(true);
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/notification/push",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: data.content }),
+          credentials : "include"
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        setNotifications((prev) => [result.notification, ...prev]);
+        setShowForm(false);
+      } else {
+        console.error("Error adding notification:", result.message);
+      }
+    } catch (error) {
+      console.error("Error adding notification:", error);
+    }
   };
 
   return (
@@ -71,14 +74,13 @@ const AddNotifications = () => {
         </button>
       </div>
 
-
       {notifications.length === 0 ? (
         <p>No notifications available. Add one using the button above.</p>
       ) : (
         <div className="grid gap-8">
           {notifications.map((notification) => (
             <div
-              key={notification._id} // Use _id for unique key
+              key={notification._id}
               className="p-6 border rounded-lg shadow-md bg-white"
             >
               <div className="flex justify-between">
@@ -86,25 +88,9 @@ const AddNotifications = () => {
                   <p className="text-gray-500">
                     <strong>Time:</strong>{" "}
                     {new Date(notification.date).toLocaleString()}
-                    {/* Format the date using JavaScript's toLocaleString method */}
                   </p>
                   <p className="mt-4">{notification.message}</p>
-                  {/* Use message instead of content */}
                 </div>
-                {/* <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditNotification(notification)}
-                    className="text-blue-500"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteNotification(notification._id)} // Use _id for deletion
-                    className="text-red-500"
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </div> */}
               </div>
             </div>
           ))}
@@ -113,10 +99,8 @@ const AddNotifications = () => {
 
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-screen overflow-y-auto">
-            <h2 className="text-2xl mb-4">
-              {editingNotificationId ? "Edit Notification" : "Add Notification"}
-            </h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <h2 className="text-2xl mb-4">Add Notification</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
@@ -143,9 +127,7 @@ const AddNotifications = () => {
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded"
                 >
-                  {editingNotificationId
-                    ? "Update Notification"
-                    : "Add Notification"}
+                  Add Notification
                 </button>
               </div>
             </form>

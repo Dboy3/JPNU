@@ -1,14 +1,16 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
-// pass the job-ids
 function JobCard({ job }) {
+  const location = useLocation(); // Get the current path
+
   console.log("from card", job);
-  return (
-    <NavLink
-      className="space-x-4 border bg-white shadow-lg p-4 rounded-lg flex items-center"
-      to={`/d/jobs/${job._id}`}
-    >
+
+  // Conditionally render NavLink or div based on the current path
+  const isApplicationsPage = location.pathname === "/d/jobs/applications";
+
+  const CardContent = (
+    <div className="space-x-4 border bg-white shadow-lg p-4 rounded-lg flex items-center">
       <div className="">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-primary-dark">
@@ -48,7 +50,13 @@ function JobCard({ job }) {
           <p className="text-gray-500 mt-2">{job.otherDetails}</p>
         </div>
       </div>
-    </NavLink>
+    </div>
+  );
+
+  return isApplicationsPage ? (
+    <div>{CardContent}</div> // Render as a div if on applications page
+  ) : (
+    <NavLink to={`/d/jobs/${job._id}`}>{CardContent}</NavLink> // Render as NavLink otherwise
   );
 }
 

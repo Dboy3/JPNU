@@ -122,8 +122,8 @@ export const createJobPosting = async (req, res) => {
     // Check for duplicate entries
     const duplicates = await JobPosting.find({
       companyName,
-      roles: { $in: roles }, // Matches if any of the roles exist in the database's roles array
-      employmentType,
+      // roles: { $in: roles }, // Matches if any of the roles exist in the database's roles array
+      // employmentType,
     });
     // Filter duplicates based on registration dates
     const isValidForInsert = duplicates.every(
@@ -220,7 +220,7 @@ export const getJobPostings = async (req, res) => {
     console.log("jobPostings", jobPostings);
 
     if (!jobPostings || jobPostings.length === 0) {
-      return res.status(404).json({ message: "No job postings found" });
+      return res.status(404).json({  jobPostings: [] });
     }
 
     // Remove job postings that have postId in appliedJobs
@@ -262,6 +262,7 @@ export const getJobPostings = async (req, res) => {
       return true;
     });
 
+    console.log( "arr ", filteredJobPostings);
     res.status(200).json({ jobPostings: filteredJobPostings });
   } catch (error) {
     console.error(error);

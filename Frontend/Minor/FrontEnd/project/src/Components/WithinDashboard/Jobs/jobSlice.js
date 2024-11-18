@@ -13,7 +13,7 @@ export const fetchOpportunities = createAsyncThunk(
       body: JSON.stringify(obj),
     });
     const data = await response.json();
-    console.log(data);
+    console.log("the job opportunites" , data);
     return data.jobPostings;
   }
 );

@@ -34,7 +34,7 @@ import History from "./Components/AdminDashboard/History/History";
 import AddDetails from "./Components/AdminDashboard/AddDetails/AddDetails";
 
 import { selectUser } from "./Pages/auth";
-import { useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 
 function App() {
   const user = useSelector(selectUser);

@@ -1,11 +1,25 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+// // adding
+// export const getCookie = (name) => {
+//   const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+//   return match ? decodeURIComponent(match[2]) : null;
+// };
+
+// og
 const initialState = {
   loggedInUser: null,
   status: "idle",
   error: null,
   message: null, // Field to store success/error message
 };
+
+// const initialState = {
+//   loggedInUser: JSON.parse(localStorage.getItem("user")) || null, // Retrieve user from localStorage or default to null
+//   status: "idle",
+//   error: null,
+//   message: null,
+// };
 
 // Action creator for login
 export const checkUser = createAsyncThunk(
@@ -23,6 +37,9 @@ export const checkUser = createAsyncThunk(
         const data = await response.json();
         // Store the token in local storage
         //   localStorage.setItem("token", data.token);
+
+        // add to local storage
+        // localStorage.setItem("user", JSON.stringify(data));
         console.log(data, " printing the data");
         return data; // Return success data
       } else {
@@ -51,7 +68,7 @@ const authSlice = createSlice({
         state.loggedInUser = action.payload.user; // Store user data on successful login
         state.message = "Login successful"; // Store success message
         state.error = null; // Reset error
-        console.log("the user is ",state.loggedInUser);
+        console.log("the user is ", state.loggedInUser);
       })
       .addCase(checkUser.rejected, (state, action) => {
         state.status = "idle";

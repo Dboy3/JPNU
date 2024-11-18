@@ -232,10 +232,10 @@ const SignupPage = () => {
                 <option value="">Select a role</option>
                 <option value="SPC">SPC</option>
                 <option value="Student">Student</option>
-                <option value="Admin">Admin</option>
-                <option value="Academic Coordinator">
+                {/* <option value="Admin">Admin</option> */}
+                {/* <option value="Academic Coordinator">
                   Academic Coordinator
-                </option>
+                </option> */}
               </select>
             </div>
 

@@ -313,3 +313,24 @@ export const isprofileComplete = async (req, res) => {
   }
 };
 // --------------------------------------------------------------------------------------------
+
+export const getProjectDetailsId = async (req, res) => {
+  try {
+    const { userId } = req.body; // Extract userId from token
+    console.log(userId);
+    // Retrieve user data based on userId
+    const userData = await projectDetails.findOne({ userId });
+    if (!userData) {
+      console.log(userData);
+      return res.status(400).json({ message: "User not found" }); // Return empty data if not found
+    }
+    console.log(userData);
+    // Return success response
+    res.status(200).json({ data: userData.projects });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving project details." });
+  }
+};

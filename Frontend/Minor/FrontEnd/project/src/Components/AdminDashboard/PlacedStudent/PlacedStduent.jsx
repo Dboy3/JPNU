@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ResumeModal from "./ResumeModel"; // Import the modal component
 
 function PlacedStudent() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [companies, setCompanies] = useState([]);
   const [students, setStudents] = useState([]);
-
-  // adding new thing
-  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -32,7 +32,6 @@ function PlacedStudent() {
   };
 
   const handleShowData = async () => {
-    console.log("selected company ", selectedCompany);
     if (selectedCompany) {
       try {
         const response = await axios.post(
@@ -44,47 +43,10 @@ function PlacedStudent() {
         console.error("Error fetching students:", error);
       }
     }
-
-    console.log(students);
   };
-
-  // const handlePlacementChange = async (studentId, placed) => {
-  //   console.log(studentId , selectedCompany);
-  //   try {
-  //     if (placed) {
-  //       alert("The student is already placed.");
-  //       return;
-  //     }
-
-  //     const response = await axios.post(
-  //       "http://localhost:8000/api/jobs/placed-students/add",
-  //       {
-  //         userId: studentId,
-  //         postId: selectedCompany,
-  //       }
-  //     );
-
-  //     if (response.status === 201) {
-  //       alert("Placement status updated successfully.");
-  //       // Update the student list locally to reflect the changes
-  //       setStudents((prevStudents) =>
-  //         prevStudents.map((student) =>
-  //           student._id === studentId ? { ...student, placed: true } : student
-  //         )
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating placement status:", error);
-  //     alert("Failed to update placement status. Please try again.");
-  //   }
-  // };
 
   const handlePlacementChange = async (studentId, placed) => {
     console.log(studentId, selectedCompany);
-    // if (placed) {
-    //   alert("The student is already placed.");
-    //   return;
-    // }
 
     // Update the UI instantly
     setStudents((prevStudents) =>
@@ -110,8 +72,8 @@ function PlacedStudent() {
           { postId: selectedCompany }
         );
         setStudents(updatedResponse.data || []);
-      } else if (response.status == 200) {
-        alert("Revert successfully.");
+      } else if (response.status === 200) {
+        alert("Reverted successfully.");
         // Refresh student data to ensure state consistency
         const updatedResponse = await axios.post(
           "http://localhost:8000/api/jobs/getstudentbypostid",
@@ -134,16 +96,21 @@ function PlacedStudent() {
     }
   };
 
+  const handleViewProfile = (student) => {
+    setSelectedStudent(student);
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-sm">
-      <h2 className="text-xl font-semibold text-primary-dark mb-4 text-center">
+    <div className="p-8 max-w-6xl mx-auto bg-white rounded-lg shadow-lg">
+      <h2 className="text-2xl font-semibold text-primary-dark mb-6 text-center">
         Student Applications
       </h2>
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="flex items-center space-x-4 mb-6">
         <select
           value={selectedCompany}
           onChange={handleCompanyChange}
-          className="border text-primary-dark p-2 rounded focus:outline-none focus:ring focus:ring-primary-light transition-all"
+          className="border text-primary-dark p-3 rounded-lg focus:outline-none focus:ring focus:ring-primary-light transition-all w-full sm:w-1/3"
         >
           <option value="" disabled>
             Select a Company
@@ -156,62 +123,70 @@ function PlacedStudent() {
         </select>
         <button
           onClick={handleShowData}
-          className="bg-primary text-white px-3 py-2 rounded-md hover:bg-primary-dark transition-all focus:outline-none"
+          className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-all focus:outline-none"
         >
           Show Data
         </button>
       </div>
 
-      <div>
+      <div className="overflow-x-auto">
         {students.length > 0 ? (
           <table className="min-w-full table-auto">
             <thead>
               <tr>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   First Name
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   Last Name
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   Email
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   Phone Number
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   Branch
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   CGPA
                 </th>
-                <th className="p-2 text-left bg-primary-lightest text-primary-dark">
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
                   Placement Status
+                </th>
+                <th className="p-3 text-left bg-primary-lightest text-primary-dark">
+                  Actions
                 </th>
               </tr>
             </thead>
             <tbody>
               {students.map((student) => (
                 <tr key={student.userId} className="border-t">
-                  <td className="p-2">{student.firstName}</td>
-                  <td className="p-2">{student.lastName}</td>
-                  <td className="p-2">{student.email}</td>
-                  <td className="p-2">{student.phoneNumber}</td>
-                  <td className="p-2">{student.branch}</td>
-                  <td className="p-2">{student.cgpa}</td>
-                  <td className="p-2">
+                  <td className="p-3">{student.firstName}</td>
+                  <td className="p-3">{student.lastName}</td>
+                  <td className="p-3">{student.email}</td>
+                  <td className="p-3">{student.phoneNumber}</td>
+                  <td className="p-3">{student.branch}</td>
+                  <td className="p-3">{student.cgpa}</td>
+                  <td className="p-3">
                     <button
                       onClick={() =>
                         handlePlacementChange(student.userId, student.placed)
                       }
-                      className={`px-4 py-2 rounded-md ${
+                      className={`px-6 py-3 rounded-md ${
                         student.placed
                           ? "bg-green-200 text-green-800 cursor-not-allowed"
                           : "bg-primary-lightest hover:bg-primary-light text-black"
                       }`}
-                      // disabled={student.placed}
                     >
                       {student.placed ? "Placed" : "Place"}
+                    </button>
+                    <button
+                      onClick={() => handleViewProfile(student)}
+                      className="ml-4 px-6 py-3 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      View Details
                     </button>
                   </td>
                 </tr>
@@ -226,6 +201,13 @@ function PlacedStudent() {
           )
         )}
       </div>
+
+      {/* Resume Modal */}
+      <ResumeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        student={selectedStudent}
+      />
     </div>
   );
 }

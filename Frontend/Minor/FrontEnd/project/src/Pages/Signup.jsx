@@ -115,7 +115,7 @@ const SignupPage = () => {
       if (response.ok) {
         navigate("/login");
       } else {
-        setError(data.message || "An error occurred during sign-up.");
+        setError(data.error || "An error occurred during sign-up.");
         setIsErrorModalOpen(true);
       }
     } catch (error) {

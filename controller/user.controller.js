@@ -111,7 +111,7 @@ export const createUser = async (req, res) => {
     }
 
     // Handle the case for "Student" role
-    if (role === "Student" || role==="SPC") {
+    if (role === "Student" ) {
       if (!rollNo) {
         return res
           .status(400)
@@ -154,9 +154,9 @@ export const createUser = async (req, res) => {
       role,
       userId,
       password: hashedPassword,
-      rollNo: role === "Student" || role === "SPC" ? rollNo : undefined,
-      cgpa: role === "Student" || role === "SPC"  ? cgpa : undefined,
-      branch: role === "Student" || role === "SPC"  ? branch : undefined,
+      rollNo: role === "Student" ? rollNo : undefined,
+      cgpa: role === "Student"  ? cgpa : undefined,
+      branch: role === "Student" ? branch : undefined,
     });
 
     // Save the user to the database

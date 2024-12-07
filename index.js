@@ -27,6 +27,14 @@ app.use(cors({
     credentials: true,// Replace with your frontend URL
 }));
 
+// making the changes for deploye
+// app.use(cors({
+//     origin: 'http://localhost:5173' ,
+//     credentials: true,// Replace with your frontend URL
+// }));
+
+
+
 const port =  process.env.PORT || 3000;
 //api's
 app.use("/api/user",userRoutes);
